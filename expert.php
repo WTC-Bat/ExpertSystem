@@ -25,6 +25,7 @@ if (($queries = get_queries($infile)) == null)
 // print_queries($queries);
 if (($ifacts = get_initial_facts($infile)) == null)
 	echo("WARNING: No facts are initially true!" . PHP_EOL);
+// print_ifacts($ifacts);
 if (($facts = get_facts($infile, $ifacts)) == null)
 	exsys_error("ERROR: No facts found in file.");
 // print_facts($facts);

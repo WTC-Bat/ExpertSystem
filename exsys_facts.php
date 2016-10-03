@@ -9,7 +9,7 @@ function clean_line($str)
 
 // function get_rules($filename)
 // {
-//
+// 	$rules = array();
 // }
 
 function get_initial_facts($filename)
@@ -97,8 +97,6 @@ function get_facts($filename, $ifacts)
 	{
 		while (($line = fgets($file)) == TRUE)
 		{
-			// if ($line[0] != '?' && $line[0] != '=' && (empty($line)) == FALSE)
-			// {
 			$line = clean_line($line);
 			for ($cnt = 0; $cnt < strlen($line); $cnt++)
 			{
@@ -119,7 +117,6 @@ function get_facts($filename, $ifacts)
 					}
 				}
 			}
-			// }
 		}
 	}
 	fclose($file);
