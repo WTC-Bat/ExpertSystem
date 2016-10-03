@@ -7,6 +7,11 @@ function clean_line($str)
 	return (preg_replace("/\s+/", "", $nstr));
 }
 
+// function get_rules($filename)
+// {
+//
+// }
+
 function get_initial_facts($filename)
 {
 	$file;
