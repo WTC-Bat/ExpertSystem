@@ -20,9 +20,9 @@ function get_rules($filename)
 	{
 		while (($line = fgets($file)) == TRUE)
 		{
-			$line = clean_line($line);
 			if (($line[0] != '=') && ($line[0]) != '?' && (empty($line)) == FALSE)
 			{
+				$line = clean_line($line);
 				$rule = new Rule($line);
 				if (count($rules) == 0)
 					$rules[0] = $rule;

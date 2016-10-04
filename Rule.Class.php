@@ -13,7 +13,7 @@ class Rule
 	{
 		if (($iopidx = strpos($ruleline, "<=>")) == FALSE)
 			if (($iopidx = strpos($ruleline, "=>")) == FALSE)
-				throw new Exception("No valid inference operator detected.");
+				throw new Exception("No valid inference operator detected.");	//Gets thrown always
 		$iop = $this->getInferenceOperator($iopidx, $ruleline);
 		if (($idxiop = strpos($ruleline, $iop)) == FALSE)
 			throw new Exception("Inference operator not detected in rule.");
