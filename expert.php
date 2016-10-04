@@ -2,7 +2,7 @@
 <?php
 
 require_once("exsys_facts.php");
-require_once("Rule.Class.php");
+require_once("Rule.class.php");
 
 //temp
 require_once("exsys_dbg.php");
@@ -31,7 +31,10 @@ if (($facts = get_facts($infile, $ifacts)) == null)
 	exsys_error("ERROR: No facts found in file.");
 // print_facts($facts);
 if (($rules = get_rules($infile)) == null)
-	echo("WARNING: No rules specified in file!");
+	echo("WARNING: No rules specified in file!" . PHP_EOL);
+// print_rules($rules);
+print_rule_members($rules);
+exit(0);
 
 function exsys_error($message)
 {

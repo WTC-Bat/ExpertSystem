@@ -1,5 +1,7 @@
 <?php
 
+require_once("Rule.class.php");
+
 function print_facts(array $facts)
 {
 	foreach ($facts as $f)
@@ -30,10 +32,16 @@ function print_rules(array $rules)
 {
 	print("Rules:" . PHP_EOL);
 	foreach ($rules as $rule)
+		$rule->printRule();
+}
+
+function print_rule_members(array $rules)
+{
+	print("Rule Members:" . PHP_EOL);
+	foreach ($rules as $rule)
 	{
-		print("Inference:\t" . $rule->_inference);
-		print("Operator:\t" . $rule->_ioperator);
-		print("Requirement:\t" . $rule->_requirements);
+		$rule->printMembers();
+		print("\n");
 	}
 }
 
