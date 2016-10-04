@@ -1,5 +1,7 @@
 <?php
 
+require_once("Rule.Class.php");
+
 function clean_line($str)
 {
 	$compos = strpos($str, "#");
@@ -7,10 +9,34 @@ function clean_line($str)
 	return (preg_replace("/\s+/", "", $nstr));
 }
 
-// function get_rules($filename)
-// {
-// 	$rules = array();
-// }
+function get_rules($filename)
+{
+	$rules = array();
+	$rule;
+	$file;
+
+	$file = fopen($filename, "r");
+	if ($file)
+	{
+		while (($line = fgets($file)) == TRUE)
+		{
+			$line = clean_line($line);
+			if (($line[0] != '=') && ($line[0]) != '?' && (empty($line)) == FALSE)
+			{
+				$rule = new Rule($line);
+				if (count($rules) == 0)
+					$rules[0] = $rule;
+				else
+					array_push($rules, $rule);
+			}
+		}
+	}
+	fclose($file);
+	if (count($rules) == 0)
+		return (null);
+	else
+		return ($rules);
+}
 
 function get_initial_facts($filename)
 {

@@ -2,6 +2,7 @@
 <?php
 
 require_once("exsys_facts.php");
+require_once("Rule.Class.php");
 
 //temp
 require_once("exsys_dbg.php");
@@ -11,7 +12,7 @@ $facts = array();
 $ifacts = array();
 $queries = array();
 $infile;
-// $rules;
+$rules = array();
 
 if ($argc == 1)
 	exsys_error("ERROR: No input file specified.");
@@ -29,6 +30,8 @@ if (($ifacts = get_initial_facts($infile)) == null)
 if (($facts = get_facts($infile, $ifacts)) == null)
 	exsys_error("ERROR: No facts found in file.");
 // print_facts($facts);
+if (($rules = get_rules($infile)) == null)
+	echo("WARNING: No rules specified in file!");
 
 function exsys_error($message)
 {
