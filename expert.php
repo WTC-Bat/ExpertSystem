@@ -30,10 +30,11 @@ if (($ifacts = get_initial_facts($infile)) == null)
 if (($facts = get_facts($infile, $ifacts)) == null)
 	exsys_error("ERROR: No facts found in file.");
 // print_facts($facts);
+Rule::$verbose = TRUE;
 if (($rules = get_rules($infile)) == null)
 	echo("WARNING: No rules specified in file!" . PHP_EOL);
 // print_rules($rules);
-print_rule_members($rules);
+// print_rule_members($rules);
 exit(0);
 
 function exsys_error($message)

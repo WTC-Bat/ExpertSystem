@@ -80,6 +80,16 @@ class Rule
 		print("State:\t\t" . $strstate . PHP_EOL);
 	}
 
+	public function printRule($printState = FALSE)
+	{
+		$strstate = "FALSE";
+
+		if ($this->_state == TRUE)
+			$strstate = "TRUE";
+		printf("%s %s %s [%s]" . PHP_EOL, $this->_requirement,
+				$this->_ioperator, $this->_inference, $strstate);
+	}
+
 	/*Private Functions*/
 	private function inferenceOperator($iopidx, $ruleline)
 	{

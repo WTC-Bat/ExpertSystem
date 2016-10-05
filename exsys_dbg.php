@@ -32,7 +32,7 @@ function print_rules(array $rules)
 {
 	print("Rules:" . PHP_EOL);
 	foreach ($rules as $rule)
-		$rule->printRule();
+		print($rule . PHP_EOL);
 }
 
 function print_rule_members(array $rules)
