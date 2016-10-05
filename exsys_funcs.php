@@ -5,7 +5,10 @@ require_once("Rule.Class.php");
 function clean_line($str)
 {
 	$compos = strpos($str, "#");
-	$nstr = substr($str, 0, $compos);
+	$nstr = $str;
+	
+	if ($compos != FALSE)
+		$nstr = substr($str, 0, $compos);
 	return (preg_replace("/\s+/", "", $nstr));
 }
 

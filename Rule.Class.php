@@ -7,7 +7,6 @@ class Rule
 	private $_inference;
 	private $_ioperator;
 	private $_requirement;
-	private $_state = FALSE;
 
 	/*Constructor*/
 	function __construct($ruleline)
@@ -35,17 +34,8 @@ class Rule
 	/*Public Functions*/
 	public function __toString()
 	{
-		$strstate = "FALSE";
-
-		if ($this->_state == TRUE)
-			$strstate = "TRUE";
-		return (sprintf("Rule ( %s %s %s ) [%s]", $this->_requirement,
-						$this->_ioperator, $this->_inference, $strstate));
-	}
-
-	public function evaluate()
-	{
-
+		return (sprintf("Rule ( %s %s %s )", $this->_requirement,
+						$this->_ioperator, $this->_inference));
 	}
 
 	public function getInference()
@@ -63,21 +53,11 @@ class Rule
 		return ($this->_requirement);
 	}
 
-	public function getState()
-	{
-		return ($this->_state);
-	}
-
 	public function printMembers()
 	{
-		$strstate = "FALSE";
-
-		if ($this->_state == TRUE)
-			$strstate = "TRUE";
 		print("Inference:\t" . $this->_inference . PHP_EOL);
 		print("Operator:\t" . $this->_ioperator . PHP_EOL);
 		print("Requirement:\t" . $this->_requirement . PHP_EOL);
-		print("State:\t\t" . $strstate . PHP_EOL);
 	}
 
 	/*Private Functions*/
