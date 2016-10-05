@@ -41,7 +41,7 @@ function req_state(array $facts, $requirement)
 **	of rule sets (ie. ./tests/simple_test).
 **
 **	Fact compounding (|, +, !, ^) will be ignored.
-**	Only one Fact from both the left hand sise and right hand side will be
+**	Only one Fact from both the left hand side and right hand side will be
 **	accounted for.
 */
 function evaluate_naive($query, array $facts, array $rules)
