@@ -65,12 +65,16 @@ function evaluate_naive($query, array $facts, array $rules)
 }
 
 //further_evaluation:
-//	checks if 'requirement' is negated ('!')
-//	checks if either 'inference' (rhs) or 'requirement' are compunded:
+//	Checks if 'requirement' is negated ('!'):
+//		For negation, without any other compunding, instead of return 'TRUE'
+//		if the requirement is true, the inference will need to be switched.
+//		If the inference was initially 'TRUE' it will become 'FALSE' and
+//		vice versa.
+//	Checks if either 'inference' (rhs) or 'requirement' are compunded:
 //		|	-	OR
 //		+	-	AND
 //		^	-	XOR
-//	check for conflicts
-//	check for undetermined Facts
+//	Check for conflicts
+//	Check for undetermined Facts
 
 ?>
