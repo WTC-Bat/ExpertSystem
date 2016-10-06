@@ -29,12 +29,21 @@ if (($facts = get_facts($infile, $ifacts)) == null)
 	exsys_error("ERROR: No facts found in file.");
 if (($rules = get_rules($infile)) == null)
 	echo("WARNING: No rules specified in file!" . PHP_EOL);
+// foreach ($queries as $query)
+// {
+// 	$state = "FALSE";
+//
+// 	if ((evaluate_simple($query, $facts, $rules)) == TRUE)
+// 		$state = "TRUE";
+// 	printf("%s: %s" . PHP_EOL, $query, $state);
+// }
 foreach ($queries as $query)
 {
-	$state = "FALSE";
-
-	if ((evaluate_simple($query, $facts, $rules)) == TRUE)
-		$state = "TRUE";
+	// $state = "FALSE";
+	//
+	// if ((evaluate($query, $facts, $rules)) == "TRUE")
+	// 	$state = "TRUE";
+	$state = evaluate($query, $facts, $rules);
 	printf("%s: %s" . PHP_EOL, $query, $state);
 }
 exit(0);

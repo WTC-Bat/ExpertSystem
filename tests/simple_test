@@ -2,7 +2,8 @@ X => B
 Y => F
 D => H
 G => I
-X => A
+C => E		#C => Q | E		<- UNDETERMINED
+A => X
 
 =ACDG
 

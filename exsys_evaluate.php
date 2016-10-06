@@ -74,12 +74,14 @@ function evaluate_simple($query, array $facts, array $rules)
 //	Check for undetermined Facts
 
 /*
-**	Returns the initial state (TRUE or FALSE) of the query.
+**	Returns the initial state ("TRUE" or "FALSE") of the query as a string.
 **
 **	'array $facts' will be searched for an occurence of '$query'
 **	and the state returned. The initial states in 'array $facts' are
 **	initialised when the array is created.
 **	see: exsys_funcs.php->get_initial_facts()
+**
+**	The original version returned TRUE or FALSE as boolean values
 */
 function initial_state($query, array $facts)
 {
@@ -88,20 +90,42 @@ function initial_state($query, array $facts)
 		if ((key($fact)) == $query)
 		{
 			if ($fact[key($fact)] == 1)
-				return (TRUE);
+				// return (TRUE);
+				return ("TRUE");
 			else
-				return (FALSE);
+				// return (FALSE);
+				return ("FALSE");
 		}
 	}
-	return (FALSE);
+	// return (FALSE);
+	return ("FALSE");
 }
 
+function req_evaluation($req)
+{
+	$has_AND = FALSE;
+	$has_OR = FALSE;
+	$has_XOR = FALSE;
+	$has_NEG = FALSE;
+	$has_PREC = FALSE;
 
+	for ($cnt = 0; $cnt < strlen($req); $cnt++)
+	{
+		$char = substr($req, $cnt, 1);
+		// print($char . PHP_EOL);
+	}
+}
 
+/*
+**	This version of evaluate() will return a string indicating "TRUE", "FALSE",
+**	"UNDETERMINED" or "CONFLICT"
+**
+**	Conflicts may have to be searched for prior to full evaluation?
+*/
 function evaluate($query, array $facts, array $rules)
 {
 	//get the initial state of the query
-	$istate = initial_state($query, $facts);
+	$state = initial_state($query, $facts);
 	//will hold the value of 'Rule->getInference()'
 	$inf;
 	//will hold the value of 'Rule->getRequirement()'
@@ -112,20 +136,33 @@ function evaluate($query, array $facts, array $rules)
 	foreach ($rules as $rule)
 	{
 		$inf = $rule->getInference();
-		// will hold the position of the $query if found in $inf
+		//will hold the position of the $query if found in $inf
 		$qpos;
+		//if the 'inference' for the query uses negation (!A), this will be
+		//set to TRUE
+		//// $negation = FALSE;
 
 		//check if '$inf' contains the '$query'
-		if (($qpos = strpos($inf, $query)) != FALSE)
+		if (($qpos = strpos($inf, $query)) !== FALSE)
 		{
+			// print("QPOS" . PHP_EOL);
+			if ((strpos($inf, "|")) !== FALSE)
+				return ("UNDETERMINED");	//Could maybe search for more
+											//instances of '$query' in the rules
+											//if an initial 'undetermined' is
+											//found. However, that may be
+											//erroneus
+			$req = $rule->getRequirement();
+			req_evaluation($req);
 			//check if the inference of the query uses negation
-			if ($inf[$qpos - 1] == '!')
-			{
-				
-			}
+			// if ($inf[$qpos - 1] == '!')
+			// {
+			//
+			// }
 		}
 
 	}
+	return ($state);
 }
 
 ?>
