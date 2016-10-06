@@ -37,14 +37,14 @@ function req_state(array $facts, $requirement)
 **	evaluation of the requirements of the 'Rule' the query (inference)
 **	belongs to.
 **
-**	This is a 'naive' implementation and will only work on the simplest
+**	This is a 'simple' implementation and will only work on the simplest
 **	of rule sets (ie. ./tests/simple_test).
 **
 **	Fact compounding (|, +, !, ^) will be ignored.
 **	Only one Fact from both the left hand side and right hand side will be
 **	accounted for.
 */
-function evaluate_naive($query, array $facts, array $rules)
+function evaluate_simple($query, array $facts, array $rules)
 {
 	$state = initial_state($query, $facts);
 	$inf;

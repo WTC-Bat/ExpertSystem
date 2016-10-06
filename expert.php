@@ -33,7 +33,7 @@ foreach ($queries as $query)
 {
 	$state = "FALSE";
 
-	if ((evaluate_naive($query, $facts, $rules)) == TRUE)
+	if ((evaluate_simple($query, $facts, $rules)) == TRUE)
 		$state = "TRUE";
 	printf("%s: %s" . PHP_EOL, $query, $state);
 }
