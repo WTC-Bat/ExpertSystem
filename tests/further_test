@@ -2,7 +2,7 @@ X => B
 Y => F
 D => H
 G => I
-C => E
+C => Q | E
 A => X
 
 =ACDG

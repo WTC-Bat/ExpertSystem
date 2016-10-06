@@ -146,7 +146,7 @@ function evaluate($query, array $facts, array $rules)
 		if (($qpos = strpos($inf, $query)) !== FALSE)
 		{
 			// print("QPOS" . PHP_EOL);
-			if ((strpos($inf, "|")) !== FALSE)
+			if ((strpos($inf, "|")) !== FALSE)	//not working
 				return ("UNDETERMINED");	//Could maybe search for more
 											//instances of '$query' in the rules
 											//if an initial 'undetermined' is
