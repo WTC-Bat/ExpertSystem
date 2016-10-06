@@ -2,21 +2,16 @@
 
 require_once("Rule.class.php");
 
-function initial_state($query, array $facts)
-{
-	foreach ($facts as $fact)
-	{
-		if ((key($fact)) == $query)
-		{
-			if ($fact[key($fact)] == 1)
-				return (TRUE);
-			else
-				return (FALSE);
-		}
-	}
-	return (FALSE);
-}
-
+/*
+**	Simple Implementation!!!
+**
+**	'$requirement' should be a single fact without any compounding.
+**
+**	Returns the state (TRUE or FALSE) of the specified requirement.
+**	'$requirement' can be obtained from the Rule->getRequirement()
+**	function after splitting and checking for other operators in
+**	the requirement
+*/
 function req_state(array $facts, $requirement)
 {
 	foreach ($facts as $fact)
@@ -33,6 +28,8 @@ function req_state(array $facts, $requirement)
 }
 
 /*
+**	Simple Implementation!!!
+**
 **	Will evaluate a query and return TRUE or FALSE depending on recurring
 **	evaluation of the requirements of the 'Rule' the query (inference)
 **	belongs to.
@@ -47,7 +44,6 @@ function req_state(array $facts, $requirement)
 function evaluate_simple($query, array $facts, array $rules)
 {
 	$state = initial_state($query, $facts);
-	$inf;
 	$req;
 
 	foreach ($rules as $rule)
@@ -58,7 +54,7 @@ function evaluate_simple($query, array $facts, array $rules)
 			if ((req_state($facts, $req)) == TRUE)
 				return (TRUE);
 			else
-				return (evaluate($req, $facts, $rules));
+				return (evaluate_simple($req, $facts, $rules));
 		}
 	}
 	return ($state);
@@ -76,5 +72,60 @@ function evaluate_simple($query, array $facts, array $rules)
 //		^	-	XOR
 //	Check for conflicts
 //	Check for undetermined Facts
+
+/*
+**	Returns the initial state (TRUE or FALSE) of the query.
+**
+**	'array $facts' will be searched for an occurence of '$query'
+**	and the state returned. The initial states in 'array $facts' are
+**	initialised when the array is created.
+**	see: exsys_funcs.php->get_initial_facts()
+*/
+function initial_state($query, array $facts)
+{
+	foreach ($facts as $fact)
+	{
+		if ((key($fact)) == $query)
+		{
+			if ($fact[key($fact)] == 1)
+				return (TRUE);
+			else
+				return (FALSE);
+		}
+	}
+	return (FALSE);
+}
+
+
+
+function evaluate($query, array $facts, array $rules)
+{
+	//get the initial state of the query
+	$istate = initial_state($query, $facts);
+	//will hold the value of 'Rule->getInference()'
+	$inf;
+	//will hold the value of 'Rule->getRequirement()'
+	$req;
+
+	//iterate through 'Rule' objects and find the one/s in which the query
+	//is the inference (right hand side)
+	foreach ($rules as $rule)
+	{
+		$inf = $rule->getInference();
+		// will hold the position of the $query if found in $inf
+		$qpos;
+
+		//check if '$inf' contains the '$query'
+		if (($qpos = strpos($inf, $query)) != FALSE)
+		{
+			//check if the inference of the query uses negation
+			if ($inf[$qpos - 1] == '!')
+			{
+				
+			}
+		}
+
+	}
+}
 
 ?>
