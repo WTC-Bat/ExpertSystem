@@ -235,7 +235,13 @@ function req_evaluation($req, array $facts, array $rules)
 	$rfacts = rfact_array($req, $facts);
 	// print_r($rfacts);
 
-	//CHECK FOR PARENTHESES
+	//CHECK FOR PARENTHESES!
+	//check for parentheses, and if found, evaluate the conditions in the
+	//parentheses first
+	if (strpos($req, "(") !== FALSE)
+	{
+
+	}
 
 	for ($cnt = 0; $cnt < strlen($req); $cnt++)
 	{
@@ -249,7 +255,7 @@ function req_evaluation($req, array $facts, array $rules)
 			//the fact needs to be false for the rule to evaluate to true
 			if (substr($req, $cnt - 1, 1) === '!')
 				if (negation_test($rfacts, $char) === FALSE)
-					return ("FALSE");	//not yet, need to check for XOR
+					return ("FALSE");	//not yet, need to check for XOR or OR
 			//check that we aren't on the last char of '$req'
 			// THIS WILL BE TOO LATE FOR OR AND XOR!!!
 			if ($cnt < (strlen($req) - 1))
