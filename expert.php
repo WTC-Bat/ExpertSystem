@@ -7,7 +7,7 @@ require_once("Rule.class.php");
 
 // require_once("exsys_dbg.php");
 
-$reschars = array("+", "!", "^", "|", "=", "<", ">", "?", "(", ")", "#");
+// $reschars = array("+", "!", "^", "|", "=", "<", ">", "?", "(", ")", "#");
 $facts = array();
 $ifacts = array();
 $queries = array();

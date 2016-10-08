@@ -1,6 +1,7 @@
 <?php
 
 require_once("Rule.class.php");
+require_once("exsys_funcs.php");
 
 /*
 **	Simple Implementation!!!
@@ -73,6 +74,61 @@ function evaluate_simple($query, array $facts, array $rules)
 //	Check for conflicts
 //	Check for undetermined Facts
 
+/*****************************************************************************/
+
+//?
+// function fill_negfacts($req)
+// {
+// 	$negfacts = array();
+// 	$nfact = array();
+// 	for ($cnt = 0; $cnt < strlen($req); $cnt++)
+// 	{
+// 		$char = substr($req, $cnt, 1);
+// 		if (ctype_upper($char) === TRUE)
+// 		{
+// 			if (substr($req, $cnt - 1, 1) === '!')
+// 				$nfact = array($char => TRUE);
+// 			else
+// 				$nfact = array($char => FALSE);
+// 			if (count($negfacts) === 0)
+// 				$negfacts[0] = $nfact;
+// 			else
+// 				array_push($negfacts, $nfact);
+// 		}
+// 	}
+// 	if (count($negfacts) === 0)
+// 		return (NULL);
+// 	else
+// 		return ($negfacts);
+// }
+//
+// //?
+// function fill_rfacts($req, $facts)
+// {
+// 	$rfacts = array();
+// 	$rfact = array();
+// 	for ($cnt = 0; $cnt < strlen($req); $cnt++)
+// 	{
+// 		$char = substr($req, $cnt, 1);
+// 		if (ctype_upper($char) === TRUE)
+// 		{
+// 			foreach ($facts as $fact)
+// 			{
+// 				if (key($fact) === $char)
+// 					$rfact = array($char, $fact[key($fact)]);
+// 				if (count($rfacts) === 0)
+// 					$rfacts[0] = $rfact;
+// 				else
+// 					array_push($rfacts, $rfact);
+// 			}
+// 		}
+// 	}
+// 	if (count($rfacts) === 0)
+// 		return (NULL);
+// 	else
+// 		return ($rfacts);
+// }
+
 /*
 **	Returns the initial state ("TRUE" or "FALSE") of the query as a string.
 **
@@ -101,18 +157,115 @@ function initial_state($query, array $facts)
 	return ("FALSE");
 }
 
-function req_evaluation($req)
+/*
+**	Returns an array of all the facts in the requirement (left hand side), in
+**	an array with the fact being the key and the facts initial state (string)
+**	as the value.
+*/
+function rfact_array($req, array $facts)
 {
-	$has_AND = FALSE;
-	$has_OR = FALSE;
-	$has_XOR = FALSE;
-	$has_NEG = FALSE;
-	$has_PREC = FALSE;
+	$rfacts = array();
+	$rfact;
 
 	for ($cnt = 0; $cnt < strlen($req); $cnt++)
 	{
 		$char = substr($req, $cnt, 1);
-		// print($char . PHP_EOL);
+		if (ctype_upper($char) === TRUE)
+		{
+			$rfact = array($char => initial_state($char, $facts));
+			if (count($rfacts) === 0)
+				$rfacts[0] = $rfact;
+			else
+				array_push($rfacts, $rfact);
+		}
+	}
+	if (count($rfacts) === 0)
+		return (NULL);
+	else
+		return ($rfacts);
+}
+
+/*
+**	Returns the key (position) of the char '$fact' in the array '$rfacts'
+*/
+function get_rfacts_key(array $rfacts, $fact)
+{
+	$key = 0;
+
+	foreach ($rfacts as $rfact)
+	{
+		if (key($rfact) === $fact)
+			return ($key);
+		$key++;
+	}
+}
+
+function negation_test(array $rfacts)
+{
+	$rkey = get_rfacts_key($rfacts, $char);
+	if ($rfacts[$rkey][$char] === "FALSE")
+	{
+		if ((evaluate($char, $facts, $rules)) == "TRUE")
+		{
+			return (FALSE);
+		}
+	}
+	else
+	{
+		return (FALSE);
+	}
+	return (TRUE);
+}
+
+/*
+**
+*/
+function req_evaluation($req, array $facts, array $rules)
+{
+	//holds the requirments and whether or not they use negation
+	//// $negfacts = fill_negfacts($req);
+	//holds the requirements and their inital state
+	//// $rfacts = fill_rfacts($req, $facts);
+
+	//--check for OR, XOR, AND, and ()
+	//--if false, evaluate
+
+	// $state;
+	// $facteval = array();
+	$rfacts = rfact_array($req, $facts);
+	// print_r($rfacts);
+
+	//CHECK FOR PARENTHESES
+
+	for ($cnt = 0; $cnt < strlen($req); $cnt++)
+	{
+		$char = substr($req, $cnt, 1);
+		if (ctype_upper($char) === TRUE)
+		{
+			//check if the current requirement uses negation (needs to be
+			//false?). If it does, and the requirement is true, then return
+			//FALSE
+			//this assumes that negation on the right hand side means
+			//the fact needs to be false for the rule to evaluate to true
+			if (substr($req, $cnt - 1, 1) === '!')
+				if (negation_test($rfacts, $char) === FALSE)
+					return ("FALSE");	//not yet, need to check for XOR
+			//check that we aren't on the last char of '$req'
+			// THIS WILL BE TOO LATE FOR OR AND XOR!!!
+			if ($cnt < (strlen($req) - 1))
+			{
+				//check if the next char is an OR, AND, or XOR
+				switch (substr($req, $cnt + 1, 1))
+				{
+					case "|":
+						break;
+					case "&":
+						break;
+					case "^":
+						break;
+				}
+			}
+		}
 	}
 }
 
@@ -138,22 +291,24 @@ function evaluate($query, array $facts, array $rules)
 		$inf = $rule->getInference();
 		//will hold the position of the $query if found in $inf
 		$qpos;
-		//if the 'inference' for the query uses negation (!A), this will be
-		//set to TRUE
-		//// $negation = FALSE;
+		//will hold the result of the evaluation of the reqiurement
+		$reval;
 
+		if ((strpos($inf, "|")) !== FALSE && (strpos($inf, "^")) !== FALSE)
+			return ("UNDETERMINED");	//Could maybe search for more
+										//instances of '$query' in the rules
+										//if an initial 'undetermined' is
+										//found. However, that may be
+										//erroneus
 		//check if '$inf' contains the '$query'
 		if (($qpos = strpos($inf, $query)) !== FALSE)
 		{
 			// print("QPOS" . PHP_EOL);
-			if ((strpos($inf, "|")) !== FALSE)	//not working
-				return ("UNDETERMINED");	//Could maybe search for more
-											//instances of '$query' in the rules
-											//if an initial 'undetermined' is
-											//found. However, that may be
-											//erroneus
 			$req = $rule->getRequirement();
-			req_evaluation($req);
+			///!!
+			$reval = req_evaluation($req, $facts);	//should return a string state
+			if ($reval === "FALSE")	//?	//still needs to account for negation
+				return ($reval);
 			//check if the inference of the query uses negation
 			// if ($inf[$qpos - 1] == '!')
 			// {
