@@ -32,7 +32,7 @@ if (($facts = get_facts($infile, $ifacts)) == null)
 // print_facts($facts);
 if (($rules = get_rules($infile)) == null)
 	echo("WARNING: No rules specified in file!" . PHP_EOL);
-print_rules($rules);
+// print_rules($rules);
 // foreach ($queries as $query)
 // {
 // 	$state = "FALSE";

@@ -213,7 +213,8 @@ function get_nreq($req, $lpar, $rpar)
 */
 function split_req($req)
 {
-	$evals = array();	//-!-//Maybe the lhs will hold the requirement while rhs holds any possible operators
+	$rarr = array();	//-!-//Maybe the lhs will hold the requirement while rhs holds any possible operators
+						//-!-// -OR- maybe the rhs will be the requirements state. IE. "TRUE", "FALSE"
 	$nreq = $req;
 	$lpar;
 	$rpar;
@@ -225,12 +226,12 @@ function split_req($req)
 			print("ERROR: Missing closing parentheses." . PHP_EOL);
 			exit(1);
 		}
-		$eval = substr($nreq, ($lpar + 1), ($rpar - ($lpar + 1)));
-		$evals = add_to_array($evals, $eval);
+		$r = substr($nreq, ($lpar + 1), ($rpar - ($lpar + 1)));
+		$rarr = add_to_array($rarr, $r);
 		$nreq = get_nreq($nreq, $lpar, $rpar);
 	}
-	$evals = add_to_array($evals, strwithout($nreq, '+'));
-	return ($evals);
+	$rarr = add_to_array($rarr, strwithout($nreq, '+'));
+	return ($rarr);
 }
 
 /*
@@ -245,12 +246,12 @@ function reval($req, array $facts, array $rules)
 	//parentheses will be first in the array, starting with the first pair of
 	//parentheses ending with the last pair and then the fact/s without
 	//parentheses. [WILL NEED TO BE MATCHED AGAINST OPERATORS IN '$req']
-	$evals = array();
+	$rarr = array();
 
 	if (strpos($req, '(') !== FALSE)
 	{
-		$evals = split_req($req);
-		print_r($evals);
+		$rarr = split_req($req);
+		// print_r($rarr);
 	}
 	//!!//CHECK FOR NEGATION!
 }
@@ -260,6 +261,8 @@ function reval($req, array $facts, array $rules)
 **	"UNDETERMINED" or "CONFLICT"
 **
 **	Conflicts may have to be searched for prior to full evaluation?
+**
+**	HOW WILL I HANDLE CONFILICT CHECKING?!?!?!?!
 */
 function evaluate($query, array $facts, array $rules)
 {
