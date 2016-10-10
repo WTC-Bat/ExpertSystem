@@ -149,7 +149,7 @@ function get_rfacts_key(array $rfacts, $fact)
 
 /*
 **	Checks if the fact (that uses negation) is indeed false. If it is false,
-**	TRUE is returned. If it is true, then FALSE is reuturned.
+**	TRUE is returned. If it is true, then FALSE is ruturned.
 **
 **	If FALSE (true) is returned, the fact will need to be evaluated. However,
 **	even if TRUE (false) is returned, the fact should still go through
@@ -262,7 +262,7 @@ function reval($req, array $facts, array $rules)
 **
 **	Conflicts may have to be searched for prior to full evaluation?
 **
-**	HOW WILL I HANDLE CONFILICT CHECKING?!?!?!?!
+**	HOW WILL I HANDLE CONFLICT CHECKING?!?!?!?!
 */
 function evaluate($query, array $facts, array $rules)
 {
