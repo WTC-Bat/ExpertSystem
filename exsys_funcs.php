@@ -23,7 +23,8 @@ function get_rules($filename)
 	{
 		while (($line = fgets($file)) == TRUE)
 		{
-			if (($line[0] != '=') && ($line[0] != '?') && (strlen(trim($line)) != 0))
+			if (($line[0] != '=') && ($line[0] != '?') &&
+				($line[0] != '#') && (strlen(trim($line)) != 0))
 			{
 				$line = clean_line($line);
 				$rule = new Rule($line);
@@ -126,23 +127,26 @@ function get_facts($filename, $ifacts)
 	{
 		while (($line = fgets($file)) == TRUE)
 		{
-			$line = clean_line($line);
-			for ($cnt = 0; $cnt < strlen($line); $cnt++)
+			if ($line[0] != '#')
 			{
-				$char = substr($line, $cnt, 1);
-				if (ctype_upper($char) == TRUE)
+				$line = clean_line($line);
+				for ($cnt = 0; $cnt < strlen($line); $cnt++)
 				{
-					if (($ifacts != null) && (in_array($char, $ifacts)) == TRUE)
-						$state = 1;
-					else
-						$state = 0;
-					$fact = array($char => $state);
-					if (in_array($fact, $facts) == FALSE)
+					$char = substr($line, $cnt, 1);
+					if (ctype_upper($char) == TRUE)
 					{
-						if (count($facts) == 0)
-							$facts[0] = $fact;
+						if (($ifacts != null) && (in_array($char, $ifacts)) == TRUE)
+							$state = 1;
 						else
-							array_push($facts, $fact);
+							$state = 0;
+						$fact = array($char => $state);
+						if (in_array($fact, $facts) == FALSE)
+						{
+							if (count($facts) == 0)
+								$facts[0] = $fact;
+							else
+								array_push($facts, $fact);
+						}
 					}
 				}
 			}
@@ -153,6 +157,15 @@ function get_facts($filename, $ifacts)
 		return (null);
 	else
 		return ($facts);
+}
+
+function add_to_array(array $arr, $val)
+{
+	if (count($arr) == 0)
+		$arr[0] = $val;
+	else
+	array_push($arr, $val);
+	return ($arr);
 }
 
 ?>

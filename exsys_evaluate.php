@@ -76,59 +76,6 @@ function evaluate_simple($query, array $facts, array $rules)
 
 /*****************************************************************************/
 
-//?
-// function fill_negfacts($req)
-// {
-// 	$negfacts = array();
-// 	$nfact = array();
-// 	for ($cnt = 0; $cnt < strlen($req); $cnt++)
-// 	{
-// 		$char = substr($req, $cnt, 1);
-// 		if (ctype_upper($char) === TRUE)
-// 		{
-// 			if (substr($req, $cnt - 1, 1) === '!')
-// 				$nfact = array($char => TRUE);
-// 			else
-// 				$nfact = array($char => FALSE);
-// 			if (count($negfacts) === 0)
-// 				$negfacts[0] = $nfact;
-// 			else
-// 				array_push($negfacts, $nfact);
-// 		}
-// 	}
-// 	if (count($negfacts) === 0)
-// 		return (NULL);
-// 	else
-// 		return ($negfacts);
-// }
-//
-// //?
-// function fill_rfacts($req, $facts)
-// {
-// 	$rfacts = array();
-// 	$rfact = array();
-// 	for ($cnt = 0; $cnt < strlen($req); $cnt++)
-// 	{
-// 		$char = substr($req, $cnt, 1);
-// 		if (ctype_upper($char) === TRUE)
-// 		{
-// 			foreach ($facts as $fact)
-// 			{
-// 				if (key($fact) === $char)
-// 					$rfact = array($char, $fact[key($fact)]);
-// 				if (count($rfacts) === 0)
-// 					$rfacts[0] = $rfact;
-// 				else
-// 					array_push($rfacts, $rfact);
-// 			}
-// 		}
-// 	}
-// 	if (count($rfacts) === 0)
-// 		return (NULL);
-// 	else
-// 		return ($rfacts);
-// }
-
 /*
 **	Returns the initial state ("TRUE" or "FALSE") of the query as a string.
 **
@@ -200,6 +147,10 @@ function get_rfacts_key(array $rfacts, $fact)
 	}
 }
 
+/*
+**	Checks if the fact (that uses negation) is indeed false. If it is false,
+**	TRUE is returned. If it is true, then FALSE is reuturned.
+*/
 function negation_test(array $rfacts)
 {
 	$rkey = get_rfacts_key($rfacts, $char);
@@ -218,60 +169,95 @@ function negation_test(array $rfacts)
 }
 
 /*
+**	Returns the string held in '$str' without the character specified in
+**	'$exchar'.
 **
+**	Eg.
+**	strwithout("-TE--ST---", '-') == "TEST"
 */
-function req_evaluation($req, array $facts, array $rules)
+function strwithout($str, $exchar)
 {
-	//holds the requirments and whether or not they use negation
-	//// $negfacts = fill_negfacts($req);
-	//holds the requirements and their inital state
-	//// $rfacts = fill_rfacts($req, $facts);
+	$retstr = "";
 
-	//--check for OR, XOR, AND, and ()
-	//--if false, evaluate
-
-	// $state;
-	// $facteval = array();
-	$rfacts = rfact_array($req, $facts);
-	// print_r($rfacts);
-
-	//CHECK FOR PARENTHESES!
-	//check for parentheses, and if found, evaluate the conditions in the
-	//parentheses first
-	if (strpos($req, "(") !== FALSE)
+	for ($cnt = 0; $cnt < strlen($str); $cnt++)
 	{
-
+		$char = substr($str, $cnt, 1);
+		if ($char !== $exchar)
+			$retstr .= $char;
 	}
+	return ($retstr);
+}
+
+/*
+**	Returns a string ('$nreq') without the characters between the positions
+**	specified in '$lpar' and '$rpar'
+**
+**	Eg.
+**	"I like cheese and crackers"
+**	        ^         ^
+**	        7         17
+**
+**	get_nreq("I like cheese and crackers", 7, 17) == "I like crackers"
+*/
+function get_nreq($req, $lpar, $rpar)
+{
+	$nreq = "";
 
 	for ($cnt = 0; $cnt < strlen($req); $cnt++)
 	{
 		$char = substr($req, $cnt, 1);
-		if (ctype_upper($char) === TRUE)
+		if ($cnt < $lpar || $cnt > $rpar)
 		{
-			//check if the current requirement uses negation (needs to be
-			//false?). If it does, and the requirement is true, then return
-			//FALSE
-			//this assumes that negation on the right hand side means
-			//the fact needs to be false for the rule to evaluate to true
-			if (substr($req, $cnt - 1, 1) === '!')
-				if (negation_test($rfacts, $char) === FALSE)
-					return ("FALSE");	//not yet, need to check for XOR or OR
-			//check that we aren't on the last char of '$req'
-			// THIS WILL BE TOO LATE FOR OR AND XOR!!!
-			if ($cnt < (strlen($req) - 1))
-			{
-				//check if the next char is an OR, AND, or XOR
-				switch (substr($req, $cnt + 1, 1))
-				{
-					case "|":
-						break;
-					case "&":
-						break;
-					case "^":
-						break;
-				}
-			}
+			$nreq .= $char;
 		}
+	}
+	return ($nreq);	//returns with the excess operators from the requirement
+					//before it was split (+, |, &, ^)
+}
+
+/*
+**	Returns an arrray containing the facts in the requirement in the order they
+**	need to be evaluated.
+**
+**	used for removing the current facts in parentheses from '$nreq'.
+**	Essentially removes "parenthesized" facts from $nreq
+*/
+function split_req($req)
+{
+	$evals = array();	//-!-//Maybe the lhs will hold the requirement while rhs holds any possible operators
+	$nreq = $req;
+	$lpar;
+	$rpar;
+
+	while (($lpar = strpos($nreq, '(')) !== FALSE)
+	{
+		if (($rpar = strpos($nreq, ')')) === FALSE)
+		{
+			print("ERROR: Missing closing parentheses." . PHP_EOL);
+			exit(1);
+		}
+		$eval = substr($nreq, ($lpar + 1), ($rpar - ($lpar + 1)));
+		$evals = add_to_array($evals, $eval);
+		$nreq = get_nreq($nreq, $lpar, $rpar);
+	}
+	$evals = add_to_array($evals, strwithout($nreq, '+'));
+	return ($evals);
+}
+
+function reval($req, array $facts, array $rules)
+{
+	//Holds the requirements facts and their initial value
+	$rfacts = rfact_array($req, $facts);
+	//Holds the facts in the order they need to be evaluated. Facts in
+	//parentheses will be first in the array, starting with the first pair of
+	//parentheses ending with the last pair and then the fact/s without
+	//parentheses. [WILL NEED TO BE MATCHED AGAINST OPERATORS IN '$req']
+	$evals = array();
+
+	if (strpos($req, '(') !== FALSE)
+	{
+		$evals = split_req($req);
+		// print_r($evals);
 	}
 }
 
@@ -312,7 +298,9 @@ function evaluate($query, array $facts, array $rules)
 			// print("QPOS" . PHP_EOL);
 			$req = $rule->getRequirement();
 			///!!
-			$reval = req_evaluation($req, $facts);	//should return a string state
+			reval($req, $facts, $rules);
+			///!!
+			// $reval = req_evaluation($req, $facts, $rules);	//should return a string state
 			if ($reval === "FALSE")	//?	//still needs to account for negation
 				return ($reval);
 			//check if the inference of the query uses negation

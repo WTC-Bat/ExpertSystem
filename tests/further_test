@@ -3,7 +3,9 @@ Y => F
 D => H
 G => I
 C => Q | E
-!A => X
+#!A => X
+#G + (A | O) => E
+G + (A | O) + (C + D) => E
 
 =ACDG
 
