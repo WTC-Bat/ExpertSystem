@@ -2,6 +2,9 @@
 
 require_once("Rule.class.php");
 
+/*
+**	Removes ALL whitespace from the specified string ('$str')
+*/
 function clean_line($str)
 {
 	$compos = strpos($str, "#");
@@ -12,6 +15,10 @@ function clean_line($str)
 	return (preg_replace("/\s+/", "", $nstr));
 }
 
+/*
+**	Returns an array of 'Rule' objects fo all the rules specified in the
+**	provided input document.
+*/
 function get_rules($filename)
 {
 	$rules = array();
@@ -42,6 +49,10 @@ function get_rules($filename)
 		return ($rules);
 }
 
+/*
+**	Returns an array of all the facts in the provided input document that are
+**	initiallt true.
+*/
 function get_initial_facts($filename)
 {
 	$file;
@@ -77,6 +88,10 @@ function get_initial_facts($filename)
 		return ($ifacts);
 }
 
+/*
+**	Returns an array containing all queries specified in the provided input
+**	document.
+*/
 function get_queries($filename)
 {
 	$file;
@@ -113,6 +128,10 @@ function get_queries($filename)
 		return ($queries);
 }
 
+/*
+**	Returns an array containing arrays of all facts in the provided input
+**	document and their initial state.
+*/
 function get_facts($filename, $ifacts)
 {
 	$file;
@@ -159,6 +178,10 @@ function get_facts($filename, $ifacts)
 		return ($facts);
 }
 
+/*
+**	Adds the value specified in '$val' to the array specified in 'array $arr'
+**	and returns '$arr' without the value added to it
+*/
 function add_to_array(array $arr, $val)
 {
 	if (count($arr) == 0)
@@ -166,6 +189,26 @@ function add_to_array(array $arr, $val)
 	else
 	array_push($arr, $val);
 	return ($arr);
+}
+
+/*
+**	Returns the string held in '$str' without the character specified in
+**	'$exchar'.
+**
+**	Eg.
+**	strwithout("-TE--ST---", '-') == "TEST"
+*/
+function strwithout($str, $exchar)
+{
+	$retstr = "";
+
+	for ($cnt = 0; $cnt < strlen($str); $cnt++)
+	{
+		$char = substr($str, $cnt, 1);
+		if ($char !== $exchar)
+			$retstr .= $char;
+	}
+	return ($retstr);
 }
 
 ?>

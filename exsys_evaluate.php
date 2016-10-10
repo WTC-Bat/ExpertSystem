@@ -150,6 +150,10 @@ function get_rfacts_key(array $rfacts, $fact)
 /*
 **	Checks if the fact (that uses negation) is indeed false. If it is false,
 **	TRUE is returned. If it is true, then FALSE is reuturned.
+**
+**	If FALSE (true) is returned, the fact will need to be evaluated. However,
+**	even if TRUE (false) is returned, the fact should still go through
+**	evaluation as their may be a rule that makes (or negates) it false (TRUE)
 */
 function negation_test(array $rfacts)
 {
@@ -169,26 +173,6 @@ function negation_test(array $rfacts)
 }
 
 /*
-**	Returns the string held in '$str' without the character specified in
-**	'$exchar'.
-**
-**	Eg.
-**	strwithout("-TE--ST---", '-') == "TEST"
-*/
-function strwithout($str, $exchar)
-{
-	$retstr = "";
-
-	for ($cnt = 0; $cnt < strlen($str); $cnt++)
-	{
-		$char = substr($str, $cnt, 1);
-		if ($char !== $exchar)
-			$retstr .= $char;
-	}
-	return ($retstr);
-}
-
-/*
 **	Returns a string ('$nreq') without the characters between the positions
 **	specified in '$lpar' and '$rpar'
 **
@@ -198,6 +182,12 @@ function strwithout($str, $exchar)
 **	        7         17
 **
 **	get_nreq("I like cheese and crackers", 7, 17) == "I like crackers"
+**
+**	!!:
+**	Returns with the excess operators from the requirement
+**	before it was split (+, |, &, ^). Use 'strwithout()' to clean
+**
+**	Could be named something else and put in "exsys_funcs.php"!!!
 */
 function get_nreq($req, $lpar, $rpar)
 {
@@ -211,8 +201,7 @@ function get_nreq($req, $lpar, $rpar)
 			$nreq .= $char;
 		}
 	}
-	return ($nreq);	//returns with the excess operators from the requirement
-					//before it was split (+, |, &, ^)
+	return ($nreq);
 }
 
 /*
@@ -244,6 +233,10 @@ function split_req($req)
 	return ($evals);
 }
 
+/*
+**	Evaluates the requirement specified in '$req' using 'array $facts' and
+**	'array $rules'
+*/
 function reval($req, array $facts, array $rules)
 {
 	//Holds the requirements facts and their initial value
@@ -257,8 +250,9 @@ function reval($req, array $facts, array $rules)
 	if (strpos($req, '(') !== FALSE)
 	{
 		$evals = split_req($req);
-		// print_r($evals);
+		print_r($evals);
 	}
+	//!!//CHECK FOR NEGATION!
 }
 
 /*
@@ -295,14 +289,15 @@ function evaluate($query, array $facts, array $rules)
 		//check if '$inf' contains the '$query'
 		if (($qpos = strpos($inf, $query)) !== FALSE)
 		{
-			// print("QPOS" . PHP_EOL);
 			$req = $rule->getRequirement();
-			///!!
 			reval($req, $facts, $rules);
 			///!!
 			// $reval = req_evaluation($req, $facts, $rules);	//should return a string state
+			///!!
+
 			if ($reval === "FALSE")	//?	//still needs to account for negation
 				return ($reval);
+			//!!//CHECK FOR NEGATION!
 			//check if the inference of the query uses negation
 			// if ($inf[$qpos - 1] == '!')
 			// {
