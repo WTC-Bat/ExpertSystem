@@ -256,17 +256,6 @@ function reval($req, array $facts, array $rules)
 	//!!//CHECK FOR NEGATION!
 }
 
-function eval_AND($fact1, $fact2, array $facts, array $rules)
-{
-	$efact1 = evaluate($fact1, $facts, $rules);
-	$efact2 = evaluate($fact2, $facts, $rules);
-
-	if ($efact1 === "TRUE" && $efact2 === "TRUE")	//What about negation?
-		return (TRUE);
-	else
-		return (FALSE);
-}
-
 // function str_eval($str, array $facts, array $rules)
 function str_eval($str)		//!//OLDER
 {
@@ -275,47 +264,32 @@ function str_eval($str)		//!//OLDER
 	$negated = FALSE;
 	$slen = strlen($str);
 	$opchars = array('+', '|', '^');
-	$evaluated = array();
-	$state;
-	$lhs;
-	$rhs;
 
 	for ($cnt = 0; $cnt < $slen; $cnt++)
 	{
 		$char = substr($str, $cnt, 1);
-		if (in_array($char, $opchars) === TRUE)
+		if (ctype_upper($char) === TRUE)
 		{
-			print("IN_ARRAY" . PHP_EOL);
-			switch ($char)
+			//check what the operator to the right of the fact is, if it is
+			//a operator character ('$opchars'), set '$op' to the character
+			if ($cnt < ($slen - 1))
 			{
-				case '+':
-					//All below, up to "break;" needs to be reworked
-					//a couple issues will probably arise if left as is
-					if ($cnt > 1)
-					{
-						if ($str[($cnt - 2)] === '!')
-							$lhs = "!" . $str[($cnt - 1)];
-						else
-							$lhs = $str[($cnt - 1)];
-					}
-					if ($cnt < ($slen - 3))	//?
-					{
-						if ($str[($cnt + 1)] === '!')
-							$rhs = '!' . $str[($cnt + 2)];
-					}
-					else if ($cnt < ($slen - 2))
-					{
-						if (ctype_upper($str[($cnt + 1)]) === TRUE)
-							$rhs = $str[($cnt + 1)];
-					}
-					break;
-				case '|':
-					break;
-				case '^':
-					break;
+				if (in_array($str[($cnt + 1)], $opchars) === TRUE)
+				{
+					$op = $str[($cnt + 1)];
+				}
+			}
+
+			//check if the fact is negated, if so, set '$negated' to TRUE
+			if ($cnt > 0)
+			{
+				if ($str[($cnt - 1)] === '!')
+				{
+					print("ISNEGATED" . PHP_EOL);
+					$negated = TRUE;
+				}
 			}
 		}
-		//Won't work properly if '$str' doesn't have an operator character
 	}
 }
 
