@@ -174,7 +174,7 @@ function split_req($req)
 //RETURN AN ARRAY CONTAINING EVALUATED FACTS, OR MUST DO EVALUATION IT'S SELF
 //AND RETURN THE STATE ('$state')
 
-//function evaluate_array($arr, array $facts, array $rules)
+//The actual evaluation of the array should go in here.
 function evaluate_array($rarr, array $facts, array $rules)
 {
 	$results = array();
