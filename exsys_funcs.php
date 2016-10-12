@@ -211,4 +211,44 @@ function strwithout($str, $exchar)
 	return ($retstr);
 }
 
+function remove_opchars($str)
+{
+	$retstr = "";
+	$opchars = array('+', '|', '^');
+
+	for ($cnt = 0; $cnt < strlen($str); $cnt++)
+	{
+		$char = substr($str, $cnt, 1);
+		if (in_array($char, $opchars) === FALSE)
+			$retstr .= $char;
+	}
+	return ($retstr);
+}
+
+/*
+**	Returns a string ('$retstr') without the characters between the positions
+**	specified in '$start' and '$stop'
+**
+**	Eg.
+**	"I like cheese and crackers"
+**	        ^         ^
+**	        7         17
+**
+**	anti_substr("I like cheese and crackers", 7, 17) == "I like crackers"
+*/
+function anti_substr($str, $start, $stop)
+{
+	$retstr = "";
+
+	for ($cnt = 0; $cnt < strlen($str); $cnt++)
+	{
+		$char = substr($str, $cnt, 1);
+		if ($cnt < $start || $cnt > $stop)
+		{
+			$retstr .= $char;
+		}
+	}
+	return ($retstr);
+}
+
 ?>
