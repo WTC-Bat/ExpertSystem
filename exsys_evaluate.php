@@ -25,23 +25,22 @@ function evaluate($query, array $facts, array $rules)
 	foreach ($rules as $rule)
 	{
 		$inf = $rule->getInference();
-		//will hold the position of the $query if found in $inf
+		//will hold the position of the $query, if found in $inf
 		$qpos;
 		//will hold the result of the evaluation of the reqiurement
 		$reval;
 
-		if ((strpos($inf, "|")) !== FALSE && (strpos($inf, "^")) !== FALSE)
-			return ("UNDETERMINED");	//Could maybe search for more
-										//instances of '$query' in the rules
-										//if an initial 'undetermined' is
-										//found. However, that may be
-										//erroneus
 		//check if '$inf' contains the '$query'
 		if (($qpos = strpos($inf, $query)) !== FALSE)
 		{
+			if ((strpos($inf, "|")) !== FALSE && (strpos($inf, "^")) !== FALSE)
+				return ("UNDETERMINED");	//Could maybe search for more
+											//instances of '$query' in the rules
+											//if an initial 'undetermined' is
+											//found. However, that may be
+											//erroneus
 			$req = $rule->getRequirement();
-			$state = reval($req, $facts, $rules);	//Need to hold the return from reval()
-											//May just put the contents of this function here
+			$state = evaluate_requirement($req, $facts, $rules);
 		}
 
 	}
@@ -80,27 +79,34 @@ function initial_state($query, array $facts)
 **	Evaluates the requirement specified in '$req' using 'array $facts' and
 **	'array $rules'
 */
-function reval($req, array $facts, array $rules)
+function evaluate_requirement($req, array $facts, array $rules)
 {
 	//Holds the requirements facts and their initial value
-	$rfacts = rfact_array($req, $facts);
+	$rfacts = rfact_array($req, $facts);	//So far unused
 	//Holds the facts in the order they need to be evaluated. Facts in
 	//parentheses will be first in the array, starting with the first pair of
 	//parentheses ending with the last pair and then the fact/s without
 	//parentheses. [WILL NEED TO BE MATCHED AGAINST OPERATORS IN '$req']
 	$rarr = array();
+	$resarr = array();	//??
 	$state;
 
-	if (strpos($req, '(') !== FALSE)
+	if (strlen($req) == 1)
 	{
-		$rarr = split_req($req);	//?
-		$state = evaluate_array($rarr, $facts, $rules);
+		evaluate($req, $facts, $rules);
+	}
+	else if (strpos($req, '(') !== FALSE)
+	{
+		$rarr = split_req($req);
+		//$state = evaluate_array($rarr, $facts, $rules);
+		$resarr = evaluate_array($rarr, $facts, $rules);
+		$state = evaluate_results_array($req, $resarr, $facts, $rules);	//also needs requiremnt?
 	}
 	else
 	{
 		$state = evaluate_compound($req, $facts, $rules);
 	}
-	//!!//CHECK FOR NEGATION!	<-	I know 'eval_AND()' does this!!
+	//!!//CHECK FOR NEGATION!	<-	I know 'eval_AND()' does this!!	see: ./bkp/exsys_evaluate3.php
 	return ($state);
 }
 
@@ -136,8 +142,22 @@ function rfact_array($req, array $facts)
 **	Returns an arrray containing the facts in the requirement in the order they
 **	need to be evaluated.
 **
-**	used for removing the current facts in parentheses from '$nreq'.
-**	Essentially removes "parenthesized" facts from $nreq
+**	Used for removing the current facts in parentheses from '$nreq'.
+**	However, every fact not in parentheses will have it's own element in '$rarr'
+**
+**	Eg.
+**	$req = "A + B | C + (D | E)";
+**	$arr = split_req($req);
+**	print_r($arr);
+**
+**	Output:
+**	Array
+**	(
+**		[0] => D|E
+**		[1] => A
+**		[2] => B
+**		[3] => C
+**	)
 */
 function split_req($req)
 {
@@ -149,15 +169,16 @@ function split_req($req)
 
 	while (($lpar = strpos($nreq, '(')) !== FALSE)
 	{
-		if (($rpar = strpos($nreq, ')')) === FALSE)
+		if (($rpar = strpos($nreq, ')')) === FALSE)	//This maybe should be in an error check function
 		{
 			print("ERROR: Missing closing parentheses." . PHP_EOL);
 			exit(1);
 		}
 		$r = substr($nreq, ($lpar + 1), ($rpar - ($lpar + 1)));
-		$rarr = add_to_array($rarr, $r);
+		$rarr = add_to_array($rarr, $r);	//$rarr should contain an operator too
 		$nreq = anti_substr($nreq, $lpar, $rpar);
 	}
+	//?
 	$nreq = remove_opchars($nreq);
 	for ($cnt = 0; $cnt < strlen($nreq); $cnt++)
 	{
@@ -167,6 +188,7 @@ function split_req($req)
 			$rarr = add_to_array($rarr, $char);
 		}
 	}
+	print_r($rarr);
 	return ($rarr);
 }
 
@@ -175,16 +197,21 @@ function split_req($req)
 //AND RETURN THE STATE ('$state')
 
 //The actual evaluation of the array should go in here.
-function evaluate_array($rarr, array $facts, array $rules)
+function evaluate_array(array $rarr, array $facts, array $rules)
 {
 	$results = array();
+	// $op;
+	$oppos;
 	$state;
 
 	foreach ($rarr as $r)
 	{
-		if ((strpos($r, "+") !== FALSE) || (strpos($r, "|") !== FALSE) ||
-			(strpos($r, "^") !== FALSE))
+		// $op = "NONE";
+		if ((($oppos = strpos($r, "+")) !== FALSE) ||
+			(($oppos = strpos($r, "|")) !== FALSE) ||
+			(($oppos = strpos($r, "^")) !== FALSE))
 		{
+			$op = $r[$oppos];
 			$state = evaluate_compound($r, $facts, $rules);
 		}
 		else
@@ -192,102 +219,116 @@ function evaluate_array($rarr, array $facts, array $rules)
 			$state = evaluate($r, $facts, $rules);
 		}
 		$res = array($r, $state);
+		// $res = array($r, $state, $op);
 		$results = add_to_array($results, $res);
 	}
-	// print_r($results);
-	//return ($results);
-	// return ($state);
+	print_r($results);
+	return ($results);
+}
+
+function evaluate_results_array($req, array $resarr, array $facts, array $rules) //and $req?
+{
+	$char;
+	$key;
+
+	print("REQ:" . $req . PHP_EOL);
+	for ($cnt = 0; $cnt < strlen($req); $cnt++)
+	{
+		$char = substr($req, $cnt, 1);
+		if (ctype_upper($char) === TRUE)
+		{
+			//CHECK FOR COMPOUNDING		-	and negation
+			// $key = array_array_key($resarr, $char);
+			// if ($key === null)
+			// 	print("KEY IS NULL" . PHP_EOL);
+			// else
+			// 	print($resarr[$key][0] . PHP_EOL);
+		}
+	}
+
+
+
+	// foreach ($resarr as $res)
+	// {
+	// 	for ($cnt = 0; $cnt < strlen($res); $cnt++)
+	// 	{
+	//
+	// 	}
+	// }
 }
 
 function evaluate_compound($str, array $facts, array $rules)
 {
-	$char;
-	$op;
-	$negated = FALSE;
-	$slen = strlen($str);
-	$opchars = array('+', '|', '^');
-	$evaluated = array();
-	$state;
+	// $char;
+	// $op;
+	// $negated = FALSE;
+	// $slen = strlen($str);
+	// $opchars = array('+', '|', '^');
+	// $evaluated = array();
+
+	$orpos = null;
 	$lhs;
 	$rhs;
+	$lstate;
+	$rstate;
+	$state = "FALSE";
+	// $negated = FALSE;
 
-	//CHECK IF CONTAINS OR FIRST??
-
-	// print("STR: " . $str . PHP_EOL);
-
-	for ($cnt = 0; $cnt < $slen; $cnt++)
+	if ((($orpos = strpos($str, "|")) !== FALSE) ||
+		(($orpos = strpos($str, "^")) !== FALSE) ||
+		(($orpos = strpos($str, "+")) !== FALSE))
 	{
-		$char = substr($str, $cnt, 1);
-		if (in_array($char, $opchars) === TRUE)
-		{
-			// print("IN_ARRAY" . PHP_EOL);
-			switch ($char)
-			{
-				case '+':
-					if ($cnt > 1)
-						if ($str[($cnt - 2)] === '!')
-							 $lhs = "!";
-					if ($cnt > 0)
-						if (ctype_upper($str[($cnt - 1)]) === TRUE)
-							$lhs .= $str[($cnt - 1)];
-					//if ($cnt < ($slen - 3))		///?
-					if ($cnt < ($slen - 2))		///?
-					{
-						if ($str[($cnt + 1)] === '!')
-							$rhs = "!";
-						if (ctype_upper($str[($cnt + 2)]) === TRUE)
-							$rhs .= $str[($cnt + 2)];
-					}
-					//else if ($cnt < ($slen - 2))
-					else if ($cnt < ($slen - 1))
-					{
-						if (ctype_upper($str[($cnt + 1)]) === TRUE)
-							$rhs = $str[($cnt + 1)];
-					}
-					// print("LHS: " . $lhs . PHP_EOL);
-					// print("RHS: " . $rhs . PHP_EOL);
-					$state = eval_AND($lhs, $rhs, $facts, $rules);
-					if ($state === "FALSE")
-						return ("FALSE");
-					break;
-				case '|':
-					break;
-				case '^':
-					break;
-			}
-		}
-		//Won't work properly if '$str' doesn't have an operator character
+		$rhs = substr($str, 0, $orpos);
+		$lhs = substr($str, ($orpos + 1));
+		if (strlen($lhs) == 1)
+			$lstate = evaluate($lhs, $facts, $rules);
+		else
+			$lstate = evaluate_requirement($lhs, $facts, $rules);
+		if (strlen($rhs) == 1)
+			$rstate = evaluate($rhs, $facts, $rules);
+		else
+			$rstate = evaluate_requirement($rhs, $facts, $rules);
+		if ($str[$orpos] == "|")
+			$state = eval_OR($lstate, $rstate);
+		else if ($str[$orpos] == "^")
+			$state = eval_XOR($lstate, $rstate);
+		else if ($str[$orpos] == "+")
+			$state = eval_AND($lstate, $rstate);
 	}
 	return ($state);
 }
 
-//?
-function eval_AND($fact1, $fact2, array $facts, array $rules)
+function eval_OR($lstate, $rstate)
 {
-	$efact1 = evaluate($fact1, $facts, $rules);
-	$efact2 = evaluate($fact2, $facts, $rules);
-
-	if ($efact1 === "TRUE" && (strpos($efact1, "!") === TRUE))
-		return ("FALSE");
-	if ($efact2 === "TRUE" && (strpos($efact2, "!") === TRUE))
-		return ("FALSE");
-	if ($efact1 === "TRUE" && $efact2 === "TRUE")
+	if ($lstate === "TRUE" || $rstate === "TRUE")
 		return ("TRUE");
 	else
 		return ("FALSE");
+}
 
+function eval_XOR($lstate, $rstate)
+{
+	if (($lstate === "TRUE" && $rstate === "FALSE") ||
+		($lstate === "FALSE" && $rstate === "TRUE"))
+		return ("TRUE");
+	else
+		return ("FALSE");
+}
 
-	// $efact1 = evaluate($fact1, $facts, $rules);
-	// $efact2 = evaluate($fact2, $facts, $rules);
-	//
-	// if ($efact1 === "TRUE" && $efact2 === "TRUE")	//What about negation?
-	// 	return (TRUE);
-	// else
-	// 	return (FALSE);
+//?
+//function eval_AND($fact1, $fact2, array $facts, array $rules)
+function eval_AND($lstate, $rstate)
+{
+	if ($lstate == "TRUE" && $rstate == "TRUE")
+		return ("TRUE");
+	else
+		return ("FALSE");
 }
 
 /*
 **	Returns the key (position) of the char '$fact' in the array '$rfacts'
+**
+** Only for named keys
 */
 function get_rfacts_key(array $rfacts, $fact)
 {
@@ -299,6 +340,53 @@ function get_rfacts_key(array $rfacts, $fact)
 			return ($key);
 		$key++;
 	}
+}
+
+/*
+**	Returns the key of an array within another array.
+**
+**	array $arr:
+**	The array to search through
+**
+**	$val:
+**	The val of the array key '0' that resides in $arr
+**
+**	Eg.
+**	$arr = array(array("key1", "val1"), array("key2", "val2"));
+**	$key = array_array_key(arr, "key2");
+**	print($key);
+**
+**	Output:
+**	1
+*/
+function array_array_key(array $arr, $val)
+{
+	$k = null;
+
+	foreach ($arr as $a)
+	{
+		if (strpos($a[0], $val) !== FALSE)
+		{
+			if ($a[0] === $val)
+			{
+				return ($k);
+			}
+		}
+		$k++;
+	}
+	return (null);
+
+
+
+	// $k = null;
+	//
+	// foreach ($arr as $a)
+	// {
+	// 	if ($a[0] === $key)
+	// 		return ($k);
+	// 	$k++;
+	// }
+	// return (null);
 }
 
 ?>
