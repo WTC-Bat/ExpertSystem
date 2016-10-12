@@ -40,7 +40,7 @@ function evaluate($query, array $facts, array $rules)
 		if (($qpos = strpos($inf, $query)) !== FALSE)
 		{
 			$req = $rule->getRequirement();
-			reval($req, $facts, $rules);	//Need to hold the return from reval()
+			$state = reval($req, $facts, $rules);	//Need to hold the return from reval()
 											//May just put the contents of this function here
 		}
 
@@ -89,17 +89,19 @@ function reval($req, array $facts, array $rules)
 	//parentheses ending with the last pair and then the fact/s without
 	//parentheses. [WILL NEED TO BE MATCHED AGAINST OPERATORS IN '$req']
 	$rarr = array();
+	$state;
 
 	if (strpos($req, '(') !== FALSE)
 	{
 		$rarr = split_req($req);	//?
-		evaluate_array($rarr, $facts, $rules);
+		$state = evaluate_array($rarr, $facts, $rules);
 	}
 	else
 	{
-		evaluate_compound($req, $facts, $rules);
+		$state = evaluate_compound($req, $facts, $rules);
 	}
-	//!!//CHECK FOR NEGATION!
+	//!!//CHECK FOR NEGATION!	<-	I know 'eval_AND()' does this!!
+	return ($state);
 }
 
 /*
@@ -160,7 +162,6 @@ function split_req($req)
 	for ($cnt = 0; $cnt < strlen($nreq); $cnt++)
 	{
 		$char = substr($nreq, $cnt, 1);
-		print("CHAR: " . $char . PHP_EOL);
 		if (ctype_upper($char) === TRUE)
 		{
 			$rarr = add_to_array($rarr, $char);
@@ -168,6 +169,10 @@ function split_req($req)
 	}
 	return ($rarr);
 }
+
+//PROBLEMS! 'evaluate_array()' SO FAR DOESN'T RETURN EVERYTHING. IT MUST EITHER
+//RETURN AN ARRAY CONTAINING EVALUATED FACTS, OR MUST DO EVALUATION IT'S SELF
+//AND RETURN THE STATE ('$state')
 
 //function evaluate_array($arr, array $facts, array $rules)
 function evaluate_array($rarr, array $facts, array $rules)
@@ -189,6 +194,9 @@ function evaluate_array($rarr, array $facts, array $rules)
 		$res = array($r, $state);
 		$results = add_to_array($results, $res);
 	}
+	// print_r($results);
+	//return ($results);
+	// return ($state);
 }
 
 function evaluate_compound($str, array $facts, array $rules)
@@ -202,6 +210,10 @@ function evaluate_compound($str, array $facts, array $rules)
 	$state;
 	$lhs;
 	$rhs;
+
+	//CHECK IF CONTAINS OR FIRST??
+
+	// print("STR: " . $str . PHP_EOL);
 
 	for ($cnt = 0; $cnt < $slen; $cnt++)
 	{
@@ -218,21 +230,24 @@ function evaluate_compound($str, array $facts, array $rules)
 					if ($cnt > 0)
 						if (ctype_upper($str[($cnt - 1)]) === TRUE)
 							$lhs .= $str[($cnt - 1)];
-					if ($cnt < ($slen - 3 ))		///?
+					//if ($cnt < ($slen - 3))		///?
+					if ($cnt < ($slen - 2))		///?
 					{
 						if ($str[($cnt + 1)] === '!')
 							$rhs = "!";
 						if (ctype_upper($str[($cnt + 2)]) === TRUE)
 							$rhs .= $str[($cnt + 2)];
 					}
-					else if ($cnt < ($slen - 2))
+					//else if ($cnt < ($slen - 2))
+					else if ($cnt < ($slen - 1))
 					{
 						if (ctype_upper($str[($cnt + 1)]) === TRUE)
-							$rhs = $str[($cnt + 2)];
+							$rhs = $str[($cnt + 1)];
 					}
-					print("LHS: " . $lhs . PHP_EOL);
-					print("RHS: " . $rhs . PHP_EOL);
-					if (eval_AND($lhs, $rhs, $facts, $rules) === "FALSE")
+					// print("LHS: " . $lhs . PHP_EOL);
+					// print("RHS: " . $rhs . PHP_EOL);
+					$state = eval_AND($lhs, $rhs, $facts, $rules);
+					if ($state === "FALSE")
 						return ("FALSE");
 					break;
 				case '|':
@@ -243,6 +258,7 @@ function evaluate_compound($str, array $facts, array $rules)
 		}
 		//Won't work properly if '$str' doesn't have an operator character
 	}
+	return ($state);
 }
 
 //?
@@ -250,9 +266,6 @@ function eval_AND($fact1, $fact2, array $facts, array $rules)
 {
 	$efact1 = evaluate($fact1, $facts, $rules);
 	$efact2 = evaluate($fact2, $facts, $rules);
-
-	print("FACT1: " . $fact1 . PHP_EOL);
-	print("FACT2: " . $fact2 . PHP_EOL);
 
 	if ($efact1 === "TRUE" && (strpos($efact1, "!") === TRUE))
 		return ("FALSE");
