@@ -1,0 +1,12 @@
+A | B		=> C		#FALSE
+D | E | F	=> G		#TRUE
+H | I		=> J | K	#UNDETERMINED
+
+=AEI
+
+?CGJV
+
+#C - FALSE
+#G - TRUE
+#J - UNDETERMINED
+#V - FALSE

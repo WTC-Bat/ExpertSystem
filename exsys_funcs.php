@@ -251,4 +251,146 @@ function anti_substr($str, $start, $stop)
 	return ($retstr);
 }
 
+/*
+**	Returns a string with the value specifed in '$insert' inserted at the
+**	position specified by '$pos'
+**
+**	Eg.
+**	$str = "How you?";
+**	$ins = str_insert($str, "are ", 4);
+**	print($ins . PHP_EOL);
+**
+**	Output:
+**	"How are you?"
+*/
+function str_insert($str, $insert, $pos)
+{
+	$retstr = "";
+
+	for ($cnt = 0; $cnt < strlen($str); $cnt++)
+	{
+		if ($cnt == $pos)
+			$retstr .= $insert;
+		$retstr .= substr($str, $cnt, 1);
+	}
+	return ($retstr);
+}
+
+/*
+**	Returns a string which is the same as '$str' with all characters in
+**	'array $chars' removed
+**
+**	Eg.
+**	$str = "I !-!Am00 Here";
+**	$str2 = "Extraordinary";
+**	$strip = str_strip($str, array("!", "-", "0"));
+**	$strip2 = str_strip($str, array("E", "x", "t", "d"));
+**	print($strip . PHP_EOL);
+**	print($strip2 . PHP_EOL);
+**
+**	Output:
+**	"I Am Here"
+**	"raorinary"
+*/
+function str_strip($str, array $chars)
+{
+	$retstr = "";
+
+	for ($cnt = 0; $cnt < strlen($str); $cnt++)
+	{
+		$subchar = substr($str, $cnt, 1);
+		if (in_array($subchar, $chars) === FALSE)
+			$retstr .= $subchar;
+	}
+	return ($retstr);
+}
+
+/*
+**	Returns the key of an array within another array.
+**
+**	array $arr:
+**	The array to search through
+**
+**	$val:
+**	The val of the array key '0' that resides in $arr
+**
+**	Eg.
+**	$arr = array(array("key1", "val1"), array("key2", "val2"));
+**	$key = array_array_key(arr, "key2");
+**	print($key);
+**
+**	Output:
+**	1
+*/
+function array_array_key(array $arr, $val)
+{
+	$k = null;
+
+	foreach ($arr as $a)
+	{
+		if (strpos($a[0], $val) !== FALSE)
+		{
+			if ($a[0] === $val)
+			{
+				return ($k);
+			}
+		}
+		$k++;
+	}
+	return (null);
+}
+
+/*
+**	Returns a TRUE (boolean) if '$str' contains one of the characters specified
+**	in 'array $chars'
+**
+**	Eg.
+**	$str = "I like cheese";
+**	$arr = array("e", "Z", "x", "O");
+**	if (str_contains($str, $arr) === TRUE)
+**		print("\$str contains one of the characters in \$arr");
+**	else
+**		print("\$str does not contain one of the characters in \$arr");
+**
+**	Output:
+**	"$str contains one of the characters in $arr"
+*/
+function str_contains($str, array $chars)
+{
+	foreach ($chars as $char)
+	{
+		if (strpos($str, $char) !== FALSE)
+			return (TRUE);
+	}
+	return (FALSE);
+}
+
+/*
+**	Returns the number of times the character specified in '$char' occurs in
+**	the string '$str'
+**
+**	Eg.
+**	$str = "There are but few truths";
+**	$cnt1 = char_count($str, "e");
+**	$cnt2 = char_count($str, "t");
+**	print($cnt1);
+**	print($cnt2);
+**
+**	Output:
+**	4
+**	3
+*/
+function char_count($str, $char)
+{
+	$ccnt = 0;
+
+	for ($cnt = 0; $cnt < strlen($str); $cnt++)
+	{
+		$ch = substr($str, $cnt, 1);
+		if ($ch == $char)
+			$ccnt++;
+	}
+	return ($ccnt);
+}
+
 ?>

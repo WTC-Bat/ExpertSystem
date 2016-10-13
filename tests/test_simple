@@ -1,0 +1,15 @@
+X => B	#TRUE
+Y => F	#FALSE
+D => H	#TRUE
+G => I	#TRUE
+C => E	#TRUE
+A => X	#TRUE
+
+=ACDG
+
+?BFHIEX
+
+#B - TRUE
+#F - FALSE
+#H - TRUE
+#E - TRUE

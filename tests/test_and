@@ -1,0 +1,19 @@
+A + B 		=> C		#FALSE
+D + E 		=> F		#TRUE
+G + H + I	=> J		#TRUE
+K + L + M	=> N		#FALSE
+O + P + Q	=> R		#FALSE
+S + T + U	=> V + W	#TRUE
+
+=ADEGHILPQSTU
+
+?CFJNRXVW
+
+#C - FALSE
+#F - TRUE
+#J - TRUE
+#N - FALSE
+#R - FALSE
+#X - FALSE
+#V - TRUE
+#W - TRUE
