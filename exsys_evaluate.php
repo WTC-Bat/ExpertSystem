@@ -46,16 +46,34 @@ function evaluate($query, array $facts, array $rules)
 			//if negation ('!') is used in inference means that the fact must
 			//be changed to FALSE, then this is wrong. This SWITCHES from
 			//"TRUE" to "FALSE" or "FALSE" to "TRUE"
-			if (strpos($inf, "!") !== FALSE)
+			if (query_is_negated($query, $inf) === TRUE)
 			{
+				$istate = initial_state($query, $facts);
 				if ($state == "TRUE")
-					$state == "FALSE";
-				else if ($state == "FALSE");
-					$state = "TRUE";
+				{
+					if ($istate == "TRUE")
+						return ("FALSE");
+					else if ($istate == "FALSE")
+						return ("TRUE");
+				}
+				else
+				{
+					return ($istate);
+				}
 			}
 		}
-
 	}
+	// if (is_negated($query, $inf) === TRUE)
+	// {
+	// 	$istate = initial_state($query, $facts);
+	// 	if ($state == "TRUE")
+	// 	{
+	// 		if ($istate == "TRUE")
+	// 			return ("FALSE");
+	// 		else if ($istate == "FALSE")
+	// 			return ("TRUE");
+	// 	}
+	// }
 	return ($state);
 }
 
@@ -173,8 +191,7 @@ function rfact_array($req, array $facts)
 */
 function split_req($req)
 {
-	$rarr = array();	//-!-//Maybe the lhs will hold the requirement while rhs holds any possible operators
-						//-!-// -OR- maybe the rhs will be the requirements state. IE. "TRUE", "FALSE"
+	$rarr = array();
 	$nreq = $req;
 	$lpar;
 	$rpar;
@@ -187,10 +204,9 @@ function split_req($req)
 			exit(1);
 		}
 		$r = substr($nreq, ($lpar + 1), ($rpar - ($lpar + 1)));
-		$rarr = add_to_array($rarr, $r);	//$rarr should contain an operator too?
+		$rarr = add_to_array($rarr, $r);
 		$nreq = anti_substr($nreq, $lpar, $rpar);
 	}
-	//$nreq = remove_opchars($nreq);
 	$nreq = str_strip($nreq, array("+", "|", "^"));
 	for ($cnt = 0; $cnt < strlen($nreq); $cnt++)
 	{
@@ -262,15 +278,13 @@ function evaluate_results_array($req, array $resarr, array $facts, array $rules)
 function evaluate_boolstr_compound($str)
 {
 	$orpos = null;
-	$ortype = null;
+	// $ortype = null;
 	$lhs;
 	$rhs;
-	$alhs;
-	$arhs;
-	$lstate = "CHEESE";
-	$rstate = "CHEESE";
+	$lstate = "FALSE";
+	$rstate = "FALSE";
 	$state = "FALSE";
-	$pcnt = 0;
+	// $pcnt = 0;
 	// $ppos = null;
 	$opchars = array("|", "^", "+");
 
@@ -395,7 +409,7 @@ function eval_AND($lstate, $rstate)
 /*
 **	Returns the key (position) of the char '$fact' in the array '$rfacts'
 **
-** Only for named keys
+**	Only for named keys
 */
 function get_rfacts_key(array $rfacts, $fact)
 {
@@ -407,6 +421,19 @@ function get_rfacts_key(array $rfacts, $fact)
 			return ($key);
 		$key++;
 	}
+}
+
+function query_is_negated($query, $inference)
+{
+	for ($cnt = 0; $cnt < strlen($inference); $cnt++)
+	{
+		$char = substr($inference, $cnt, 1);
+		if ($char == $query)
+			if ($cnt > 0)
+				if ($inference[($cnt - 1)] == "!")
+					return (TRUE);
+	}
+	return (FALSE);
 }
 
 ?>

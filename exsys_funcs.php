@@ -211,20 +211,6 @@ function strwithout($str, $exchar)
 	return ($retstr);
 }
 
-function remove_opchars($str)
-{
-	$retstr = "";
-	$opchars = array('+', '|', '^');
-
-	for ($cnt = 0; $cnt < strlen($str); $cnt++)
-	{
-		$char = substr($str, $cnt, 1);
-		if (in_array($char, $opchars) === FALSE)
-			$retstr .= $char;
-	}
-	return ($retstr);
-}
-
 /*
 **	Returns a string ('$retstr') without the characters between the positions
 **	specified in '$start' and '$stop'
