@@ -278,17 +278,12 @@ function evaluate_results_array($req, array $resarr, array $facts, array $rules)
 function evaluate_boolstr_compound($str)
 {
 	$orpos = null;
-	// $ortype = null;
 	$lhs;
 	$rhs;
 	$lstate = "FALSE";
 	$rstate = "FALSE";
 	$state = "FALSE";
-	// $pcnt = 0;
-	// $ppos = null;
 	$opchars = array("|", "^", "+");
-
-	// print($str . PHP_EOL);
 
 	if ((($orpos = strpos($str, "|")) !== FALSE) ||
 		(($orpos = strpos($str, "^")) !== FALSE) ||
@@ -311,37 +306,6 @@ function evaluate_boolstr_compound($str)
 		else if ($str[$orpos] == "+")
 			$state = eval_AND($lstate, $rstate);
 	}
-
-	// if ((($pos = strpos($str, "|")) !== FALSE) ||
-	// 	(($pos = strpos($str, "^")) !== FALSE))
-	// {
-	// 	$lhs = substr($str, 0, $pos);
-	// 	$rhs = substr($str, ($pos + 1));
-	// 	//?
-	// 	if (str_contains($lhs, array("|", "^")) === TRUE)
-	// 	{
-	// 		print("LHS DOES CONTAIN" . PHP_EOL);
-	// 	}
-	// 	if (str_contains($rhs, array("|", "^")) === TRUE)
-	// 	{
-	// 		print("RHS DOES CONTAIN" . PHP_EOL);
-	// 	}
-	// 	// if (($ppos = strpos($lhs, "+")) === TRUE)
-	// 	// {
-	// 	// 	$pcnt = char_count($lhs, "+");
-	// 	// 	if ($pcnt > 1)
-	// 	// 	{
-	// 	// 	}
-	// 	// }
-	// }
-
-		// $pcnt = char_count($lhs, "+");
-		// if ($pcnt > 1)
-		// {
-		// 	$
-		// }
-	// }
-
 	return ($state);
 }
 
@@ -396,8 +360,9 @@ function eval_XOR($lstate, $rstate)
 		return ("FALSE");
 }
 
-//?
-//function eval_AND($fact1, $fact2, array $facts, array $rules)
+/*
+**
+*/
 function eval_AND($lstate, $rstate)
 {
 	if ($lstate == "TRUE" && $rstate == "TRUE")
@@ -423,6 +388,11 @@ function get_rfacts_key(array $rfacts, $fact)
 	}
 }
 
+
+/*
+**	Returns TRUE if the initial query (sent to evaluate()) is negated.
+**	Otherwise, FALSE returned.
+*/
 function query_is_negated($query, $inference)
 {
 	for ($cnt = 0; $cnt < strlen($inference); $cnt++)
@@ -435,5 +405,14 @@ function query_is_negated($query, $inference)
 	}
 	return (FALSE);
 }
+
+/*
+**
+*/
+//?
+// function fact_is_negated($fact, array )
+// {
+//
+// }
 
 ?>

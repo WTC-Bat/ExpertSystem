@@ -5,11 +5,11 @@ H + J	=> !I		#TRUE
 K + L	=> !M		#TRUE
 N + O	=> !P		#FALSE
 
-#X => !Y + Z		#??
+X => !Y + !Z		#FALSE
 
-=BACEFGHJKOM
+=BACEFGHJKOMXYZ
 
-?BDGIMP
+?BDGIMPYZ
 
 #B - FALSE
 #D - TRUE
@@ -17,3 +17,5 @@ N + O	=> !P		#FALSE
 #I - TRUE
 #M - TRUE
 #P - FALSE
+#Y - FALSE
+#Z - FALSE
