@@ -252,8 +252,14 @@ function anti_substr($str, $start, $stop)
 function str_insert($str, $insert, $pos)
 {
 	$retstr = "";
+	$len = strlen($str);
 
-	for ($cnt = 0; $cnt < strlen($str); $cnt++)
+	if ($pos === $len)
+	{
+		$retstr = $str . $insert;
+		return ($retstr);
+	}
+	for ($cnt = 0; $cnt < $len; $cnt++)
 	{
 		if ($cnt == $pos)
 			$retstr .= $insert;
@@ -407,6 +413,7 @@ function find_fact_in_str($fact, $str)
 			}
 			else if ($cnt === ($len - 1))
 			{
+				print("CNT AT END" . PHP_EOL);
 				if (ctype_upper($str[($cnt - 1)]) === FALSE)
 					return ($cnt);
 			}

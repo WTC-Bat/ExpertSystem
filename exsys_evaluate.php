@@ -250,7 +250,6 @@ function evaluate_array(array $rarr, array $facts, array $rules)
 	foreach ($rarr as $r)
 	{
 		// $op = "NONE";
-		print("RARR ENTRY: " . $r . PHP_EOL);
 		if ((($oppos = strpos($r, "+")) !== FALSE) ||
 			(($oppos = strpos($r, "|")) !== FALSE) ||
 			(($oppos = strpos($r, "^")) !== FALSE))
@@ -275,33 +274,21 @@ function evaluate_results_array($req, array $resarr, array $facts, array $rules)
 	$nreq = $req;
 	$state;
 
-	print("EVALUATE_RESULTS_ARRAY" . PHP_EOL);
-	print_r($resarr);
-
 	foreach ($resarr as $res)
 	{
-		//if (($pos = strpos($nreq, $res[0])) !== FALSE)
 		$len = strlen($res[0]);
 		if ($len === 1)
 			$pos = find_fact_in_str($res[0], $nreq);
 		else
 			$pos = strpos($nreq, $res[0]);
-		// if (($pos = find_fact_in_str($res[0], $nreq)) !== null)
 		if ($pos !== FALSE)
 		{
-			// print("RES[0]: " . $res[0] . PHP_EOL);
-			// print("NREQ: " . $nreq . PHP_EOL);
 			$nreq = anti_substr($nreq, $pos, ($pos + ($len - 1)));
-			// print("NREQ: " . $nreq . PHP_EOL);
 			$nreq = str_insert($nreq, $res[1], $pos);
-			// print("NREQ: " . $nreq . PHP_EOL);
 			$nreq = str_strip($nreq, array("(", ")"));
-			// print("NREQ: " . $nreq . PHP_EOL . PHP_EOL);
-			// print("->NREQ: " . $nreq . PHP_EOL);
 		}
 	}
 	$state = evaluate_boolstr_compound($nreq);
-	// return ($nreq);??
 	return ($state);
 }
 

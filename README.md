@@ -10,7 +10,9 @@
 				- Is this a conflict or is it okay to say "If
 					'A' is False, make it True"?
 					(Maybe not?)
-			-
+			- IF AND ONLY IF [<=>] means that nothing can
+				else can change the inferred fact but that
+				rule?
 	- "IF AND ONLY IF" (<=>)...?
 	- Check for any other possible "UNDETERMINED" states
 	- More tests. Parentheses, XOR, more negation tests,
