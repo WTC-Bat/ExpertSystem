@@ -1,8 +1,9 @@
-!A	=> B
-#B	=> C
-#C	=> D
-#!E	=> F
+!A		=> B	#TRUE
+C + !D	=> E	#TRUE
+F + !G	=> H	#FALSE
+!I + !J	=> K	#TRUE
+!L + !M => !N	#FALSE
 
-=
+=CFGN
 
-?B
+?BEHKN

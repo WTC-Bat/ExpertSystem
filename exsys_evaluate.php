@@ -14,6 +14,8 @@ function evaluate($query, array $facts, array $rules)
 {
 	//get the initial state of the query
 	$state = initial_state($query, $facts);
+	//will hold the result of evaluation
+	// $state = "FALSE";
 	//will hold the value of 'Rule->getInference()'
 	$inf;
 	//will hold the value of 'Rule->getRequirement()'
@@ -46,7 +48,8 @@ function evaluate($query, array $facts, array $rules)
 			//if negation ('!') is used in inference means that the fact must
 			//be changed to FALSE, then this is wrong. This SWITCHES from
 			//"TRUE" to "FALSE" or "FALSE" to "TRUE"
-			if (query_is_negated($query, $inf) === TRUE)
+			//if (query_is_negated($query, $inf) === TRUE)
+			if (fact_is_negated($query, $inf) === TRUE)
 			{
 				$istate = initial_state($query, $facts);
 				if ($state == "TRUE")
@@ -63,17 +66,14 @@ function evaluate($query, array $facts, array $rules)
 			}
 		}
 	}
-	// if (is_negated($query, $inf) === TRUE)
-	// {
-	// 	$istate = initial_state($query, $facts);
-	// 	if ($state == "TRUE")
-	// 	{
-	// 		if ($istate == "TRUE")
-	// 			return ("FALSE");
-	// 		else if ($istate == "FALSE")
-	// 			return ("TRUE");
-	// 	}
-	// }
+	//?
+	if (fact_is_negated($query, $rule->getRequirement()) === TRUE)
+	{
+		if ($state === "TRUE")
+			return ("FALSE");
+		else if ($state === "FALSE")
+			return ("TRUE");
+	}
 	return ($state);
 }
 
@@ -91,7 +91,9 @@ function initial_state($query, array $facts)
 {
 	foreach ($facts as $fact)
 	{
-		if ((key($fact)) == $query)
+		//?
+		if (strpos($query, key($fact)) !== FALSE)
+		// if ((key($fact)) == $query)
 		{
 			if ($fact[key($fact)] == 1)
 				// return (TRUE);
@@ -125,6 +127,14 @@ function evaluate_requirement($req, array $facts, array $rules)
 	{
 		$state = evaluate($req, $facts, $rules);
 	}
+	else if ((strlen($req) == 2) && ($req[0] == '!'))
+	{
+		$state = evaluate($req, $facts, $rules);
+		if ($state === "FALSE")
+			return ("TRUE");
+		else if ($state === "TRUE")
+			return ("FALSE");
+	}
 	else if (strpos($req, '(') !== FALSE)
 	{
 		$rarr = split_req($req);
@@ -136,7 +146,7 @@ function evaluate_requirement($req, array $facts, array $rules)
 	{
 		$state = evaluate_compound($req, $facts, $rules);
 	}
-	//!!//CHECK FOR NEGATION!	<-	I know 'eval_AND()' does this!!	see: ./bkp/exsys_evaluate3.php
+	//!!//CHECK FOR NEGATION!	<-	I know 'eval_AND()' did this!!	see: ./bkp/exsys_evaluate3.php
 	return ($state);
 }
 
@@ -392,6 +402,8 @@ function get_rfacts_key(array $rfacts, $fact)
 /*
 **	Returns TRUE if the initial query (sent to evaluate()) is negated.
 **	Otherwise, FALSE returned.
+**
+**	RHS of 'Rule' (inference)	/	Query (?X)
 */
 function query_is_negated($query, $inference)
 {
@@ -407,12 +419,36 @@ function query_is_negated($query, $inference)
 }
 
 /*
+**	'$rfact'	-	rule fact
 **
+**	LHS of 'Rule' (requirement)
 */
 //?
-// function fact_is_negated($fact, array )
-// {
-//
-// }
+function rfact_is_negated($rfact, $req)
+{
+	for ($cnt = 0; $cnt < strlen($req); $cnt++)
+	{
+
+	}
+}
+
+/*
+**	'$fstr'		-	either 'inference' or 'requirement', depending on the fact
+**					being checked.
+**
+**	The above two functions combined
+*/
+function fact_is_negated($fact, $fstr)
+{
+	for ($cnt = 0; $cnt < strlen($fstr); $cnt++)
+	{
+		$char = substr($fstr, $cnt, 1);
+		if ($char === $fact)
+			if ($cnt > 0)
+				if ($fstr[($cnt - 1)] === "!")
+					return (TRUE);
+	}
+	return (FALSE);
+}
 
 ?>
