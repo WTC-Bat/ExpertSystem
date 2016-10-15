@@ -206,6 +206,9 @@ function split_req($req)
 	$lpar;
 	$rpar;
 
+	// print("SPLIT_REQ" . PHP_EOL);
+	// print($req . PHP_EOL);
+
 	while (($lpar = strpos($nreq, '(')) !== FALSE)
 	{
 		if (($rpar = strpos($nreq, ')')) === FALSE)	//This maybe should be in an error check function
@@ -241,14 +244,18 @@ function evaluate_array(array $rarr, array $facts, array $rules)
 	$oppos;
 	$state;
 
+	// print("EVALUATE_ARRAY" . PHP_EOL);
+	// print_r($rarr);
+
 	foreach ($rarr as $r)
 	{
 		// $op = "NONE";
+		print("RARR ENTRY: " . $r . PHP_EOL);
 		if ((($oppos = strpos($r, "+")) !== FALSE) ||
 			(($oppos = strpos($r, "|")) !== FALSE) ||
 			(($oppos = strpos($r, "^")) !== FALSE))
 		{
-			$op = $r[$oppos];
+			// $op = $r[$oppos];
 			$state = evaluate_compound($r, $facts, $rules);
 		}
 		else
@@ -268,15 +275,28 @@ function evaluate_results_array($req, array $resarr, array $facts, array $rules)
 	$nreq = $req;
 	$state;
 
-	// print($req . PHP_EOL);
+	print("EVALUATE_RESULTS_ARRAY" . PHP_EOL);
+	print_r($resarr);
+
 	foreach ($resarr as $res)
 	{
-		if (($pos = strpos($nreq, $res[0])) !== FALSE)
+		//if (($pos = strpos($nreq, $res[0])) !== FALSE)
+		$len = strlen($res[0]);
+		if ($len === 1)
+			$pos = find_fact_in_str($res[0], $nreq);
+		else
+			$pos = strpos($nreq, $res[0]);
+		// if (($pos = find_fact_in_str($res[0], $nreq)) !== null)
+		if ($pos !== FALSE)
 		{
-			$len = strlen($res[0]);
+			// print("RES[0]: " . $res[0] . PHP_EOL);
+			// print("NREQ: " . $nreq . PHP_EOL);
 			$nreq = anti_substr($nreq, $pos, ($pos + ($len - 1)));
+			// print("NREQ: " . $nreq . PHP_EOL);
 			$nreq = str_insert($nreq, $res[1], $pos);
+			// print("NREQ: " . $nreq . PHP_EOL);
 			$nreq = str_strip($nreq, array("(", ")"));
+			// print("NREQ: " . $nreq . PHP_EOL . PHP_EOL);
 			// print("->NREQ: " . $nreq . PHP_EOL);
 		}
 	}
@@ -294,6 +314,9 @@ function evaluate_boolstr_compound($str)
 	$rstate = "FALSE";
 	$state = "FALSE";
 	$opchars = array("|", "^", "+");
+
+	// print("EVALUATE_BOOLSTR_COMPOUND" . PHP_EOL);
+	// print($str . PHP_EOL);
 
 	if ((($orpos = strpos($str, "|")) !== FALSE) ||
 		(($orpos = strpos($str, "^")) !== FALSE) ||

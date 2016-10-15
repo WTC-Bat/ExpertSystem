@@ -1,5 +1,13 @@
-A + (B | C) | D	=> E
+A | C + D | E + (F | G)	=> H
 
-=AD
+=EF
 
-?E
+?H
+
+
+
+#A + (B | C) | D	=> E
+
+#=AD
+
+#?E

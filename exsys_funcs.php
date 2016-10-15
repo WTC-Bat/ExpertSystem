@@ -379,4 +379,41 @@ function char_count($str, $char)
 	return ($ccnt);
 }
 
+/*
+**	Returns the position of '$fact' in '$str'
+*/
+function find_fact_in_str($fact, $str)
+{
+	$len = strlen($str);
+	for ($cnt = 0; $cnt < $len; $cnt++)
+	{
+		$char = substr($str, $cnt, 1);
+		// if ($char == $fact)
+		if ($char === $fact)
+		{
+			if ($cnt > 0 && $cnt < ($len - 1))
+			{
+				// if (in_array()) $opchars ?
+				if ((ctype_upper($str[($cnt - 1)]) === FALSE) &&
+					(ctype_upper($str[$cnt + 1]) === FALSE))
+				{
+					return ($cnt);
+				}
+			}
+			else if ($cnt === 0)
+			{
+				if (ctype_upper($str[($cnt + 1)]) === FALSE)
+					return ($cnt);
+			}
+			else if ($cnt === ($len - 1))
+			{
+				if (ctype_upper($str[($cnt - 1)]) === FALSE)
+					return ($cnt);
+			}
+			//return ($cnt);
+		}
+	}
+	return (FALSE);
+}
+
 ?>
