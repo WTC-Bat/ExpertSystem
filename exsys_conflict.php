@@ -4,7 +4,7 @@
 **	Runs through the gamut of conflict tests
 **	Each test will have it's own message and will exit if an error is found
 **
-**	Maybe the program shouldn't necessarily exit on conflicts?
+**	Maybe the program shouldn't necessarily exit on conflicts?!
 */
 function check_for_conflicts($rule, array $rules)
 {
@@ -20,7 +20,7 @@ function check_for_conflicts($rule, array $rules)
 	//	!B	=> B
 	same_fact($rule);
 
-	//	-> And this?
+	//	-> And this?	-Not working
 	//same_infstate_diff_reqstate
 	//		-> A	=> B
 	//		-> !A	=> B
@@ -104,6 +104,11 @@ function same_fact($rule)
 	}
 }
 
+/*
+**	Check for 'Rule' that contains the same 'requirement' as '$rule' and the
+**	the same 'inference', but the inference in the checked 'Rule' is the
+**	opposite as the fact in the inferenec of '$rule'
+*/
 function same_req_diff_infstate($rule, array $rules)
 {
 	$inf = $rule->getInference();
@@ -169,6 +174,79 @@ function same_req_diff_infstate($rule, array $rules)
 											$rule,
 											$r);
 							conflict_error($msg);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+function same_infstate_diff_reqstate($rule, array $rules)
+{
+	$inf = $rule->getInference();
+	$req = $rule->getRequirement();
+	$err = FALSE;
+
+	foreach ($rules as $r)
+	{
+		if ($r != $rule)
+		{
+			if ($r->getInference() === $inf)
+			{
+				$rreq = $r->getRequirement();
+				for ($cnt = 0; $cnt < strlen($inf); $cnt++)
+				{
+					$char = substr($inf, $cnt, 1);
+					if (ctype_upper($char) === TRUE)
+					{
+						for ($cnt2 = 0; $cnt2 < strlen($rreq); $cnt++)
+						{
+							$char2 = substr($rreq, $cnt2, 1);
+							if ($char2 === $char)
+							{
+								if ($cnt2 > 0)
+								{
+									if ($cnt > 0)
+									{
+										if ($rreq[($cnt2 - 1)] === '!' &&
+											$inf[($cnt - 1)] !== '!')
+										{
+											$err = TRUE;
+										}
+										else if ($rreq[($cnt2 - 1)] !== '!' &&
+													$inf[($cnt - 1)] === '!')
+										{
+											$err = TRUE;
+										}
+									}
+									else
+									{
+										if ($rreq[($cnt2 - 1)] === '!')
+										{
+											$err = TRUE;
+										}
+									}
+								}
+								else
+								{
+									if ($inf[($cnt - 1)] === '!')
+									{
+										$err = TRUE;
+									}
+								}
+								if ($err === TRUE)
+								{
+									$msg = sprintf("ERROR: Cannot have a " .
+											"negated version of requirement " .
+											"change the same fact\n\t-> %s" .
+											"\n\t-> %s",
+											$req,
+											$rreq);
+									conflict_error($msg);
+
+								}
+							}
 						}
 					}
 				}
