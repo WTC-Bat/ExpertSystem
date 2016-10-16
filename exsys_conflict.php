@@ -12,7 +12,7 @@ function check_for_conflicts($rule, array $rules)
 
 	//	A => B
 	//	A => !B
-
+	//...
 
 	//	A	=> !A
 	//	!B	=> B
@@ -154,23 +154,27 @@ function same_fact($rule)
 // 	}
 // }
 
-function summasumma(array $rules)
+function c2($rule, array $rules)
 {
-	$cnt1 = 0;
-	$cnt2 = 0;
+	$inf = $rule->getInferece();
+	$pos;
 
-	foreach ($rules as $rule)
+	foreach ($rules as $r)
 	{
-		foreach ($rules as $rule2)
+		for ($cnt = 0; $cnt <strlen($inf); $cnt++)
 		{
-			if ($cnt1 !== $cnt2)
+			$char = substr($inf, $cnt, 1);
+			if (ctype_upper($char) === TRUE)
 			{
+				$rinf = $r->getInferece();
+				if (($pos = strpos($rinf, $char)) !== FALSE)
+				{
+					// if ((($cnt > 0) && ($inf[($cnt - 1)] === '!')) ||
 
+					//(($pos > 0) && ($rinf[($pos - 1)]) === '!')
+				}
 			}
-			$cnt2++;
 		}
-		$cnt1++;
-		$cnt2 = 0;
 	}
 }
 
