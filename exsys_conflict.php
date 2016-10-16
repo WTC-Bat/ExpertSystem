@@ -3,6 +3,8 @@
 /*
 **	Runs through the gamut of conflict tests
 **	Each test will have it's own message and will exit if an error is found
+**
+**	Maybe the program shouldn't necessarily exit on conflicts?
 */
 function check_for_conflicts($rule, array $rules)
 {
@@ -12,7 +14,7 @@ function check_for_conflicts($rule, array $rules)
 
 	//	A => B
 	//	A => !B
-	//...
+	same_req_diff_state($rule, $rules);
 
 	//	A	=> !A
 	//	!B	=> B
@@ -71,37 +73,8 @@ function if_and_only_if($rule, array $rules)
 				}
 			}
 		}
-		// if ($r != $rule)
-		// {
-		// }
 	}
 }
-// function if_and_only_if(array $rules)
-// {
-// 	$req;
-// 	$op;
-// 	$inf;
-//
-// 	foreach ($rules as $rule)
-// 	{
-// 		if ($rule->getIOperator() === "<=>")
-// 		{
-// 			foreach ($rules as $rule2)
-// 			{
-// 				if (($rule != $rule2) &&
-// 					($rule->getInference() === $rule2->getInference()))
-// 				{
-// 					$msg = sprintf("ERROR: \"%s\" can only be modified by the ".
-// 									"rule \"%s\"\n\t-> %s",
-// 									$rule->getInference(),
-// 									$rule->getRequirement(),
-// 									$rule);
-// 					conflict_error($msg);
-// 				}
-// 			}
-// 		}
-// 	}
-// }
 
 /*
 **	Checks that there are no 'Rules' that have the same fact in the
@@ -129,35 +102,13 @@ function same_fact($rule)
 		}
 	}
 }
-// function same_fact(array $rules)
-// {
-// 	$inf;
-// 	$req;
-//
-// 	foreach ($rules as $rule)
-// 	{
-// 		$inf = $rule->getInference();
-// 		$req = $rule->getRequirement();
-// 		for ($cnt = 0; $cnt < strlen($inf); $cnt++)
-// 		{
-// 			$char = substr($inf, $cnt, 1);
-// 			if (ctype_upper($char) === TRUE)
-// 			{
-// 				if (strpos($req, $char) !== FALSE)
-// 				{
-// 					$msg = sprintf("ERROR: A fact cannot be used to change ".
-// 									"it's own state.\n\t-> %s", $rule);
-// 					conflict_error($msg);
-// 				}
-// 			}
-// 		}
-// 	}
-// }
 
-function c2($rule, array $rules)
+function same_req_diff_state($rule, array $rules)
 {
-	$inf = $rule->getInferece();
+	$inf = $rule->getInference();
 	$pos;
+	$rerr;
+	$err = FALSE;
 
 	foreach ($rules as $r)
 	{
@@ -166,12 +117,59 @@ function c2($rule, array $rules)
 			$char = substr($inf, $cnt, 1);
 			if (ctype_upper($char) === TRUE)
 			{
-				$rinf = $r->getInferece();
+				$rinf = $r->getInference();
 				if (($pos = strpos($rinf, $char)) !== FALSE)
 				{
-					// if ((($cnt > 0) && ($inf[($cnt - 1)] === '!')) ||
-
-					//(($pos > 0) && ($rinf[($pos - 1)]) === '!')
+					if ($r->getRequirement() == $rule->getRequirement())
+					{
+						if ($cnt > 0)
+						{
+							if ($inf[($cnt - 1)] === '!')
+							{
+								if ($pos > 0)
+								{
+									if ($rinf[($pos - 1)] !== '!')
+									{
+										$err = TRUE;
+									}
+								}
+								else
+								{
+									$err = TRUE;
+								}
+							}
+							else if ($inf[($cnt - 1)] !== '!')
+							{
+								if ($pos > 0)
+								{
+									if ($rinf[($pos - 1)] === '!')
+									{
+										$err = TRUE;
+									}
+								}
+							}
+						}
+						else
+						{
+							if ($pos > 0)
+							{
+								if ($rinf[($pos - 1)] === '!')
+								{
+									$err = TRUE;
+								}
+							}
+						}
+						if ($err === TRUE)
+						{
+							$msg = sprintf("ERROR: The same requirement " .
+											"cannot be used the change the " .
+											"same fact to a differenct state".
+											"\n\t-> %s\n\t-> %s",
+											$rule,
+											$r);
+							conflict_error($msg);
+						}
+					}
 				}
 			}
 		}
