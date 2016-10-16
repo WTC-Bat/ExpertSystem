@@ -14,13 +14,14 @@ function check_for_conflicts($rule, array $rules)
 
 	//	A => B
 	//	A => !B
-	same_req_diff_state($rule, $rules);
+	same_req_diff_infstate($rule, $rules);
 
 	//	A	=> !A
 	//	!B	=> B
 	same_fact($rule);
 
 	//	-> And this?
+	//same_infstate_diff_reqstate
 	//		-> A	=> B
 	//		-> !A	=> B
 }
@@ -103,7 +104,7 @@ function same_fact($rule)
 	}
 }
 
-function same_req_diff_state($rule, array $rules)
+function same_req_diff_infstate($rule, array $rules)
 {
 	$inf = $rule->getInference();
 	$pos;
