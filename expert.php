@@ -3,6 +3,7 @@
 
 require_once("exsys_funcs.php");
 require_once("exsys_evaluate.php");
+require_once("exsys_conflict.php");
 require_once("Rule.class.php");
 
 $facts = array();
@@ -29,7 +30,8 @@ if (($facts = get_facts($infile, $ifacts)) == null)
 if (($rules = get_rules($infile)) == null)
 	print("WARNING: No rules specified in file!" . PHP_EOL);
 
-print(PHP_EOL . "Query Results:" . PHP_EOL);
+// check_for_conflicts($rules);
+print(PHP_EOL . "Query Results:" . PHP_EOL);	//? interferes with conflict checking
 print("--------------" . PHP_EOL);
 foreach ($queries as $query)
 {

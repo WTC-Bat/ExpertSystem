@@ -4,11 +4,8 @@ require_once("Rule.class.php");
 require_once("exsys_funcs.php");
 
 /*
-**	This version of evaluate() will return a string indicating "TRUE", "FALSE",
+**	Returns a string indicating "TRUE", "FALSE",
 **	"UNDETERMINED" or "CONFLICT"
-**
-**	Conflicts may have to be searched for prior to full evaluation?
-**	HOW WILL I HANDLE CONFLICT CHECKING?!?!?!?!
 */
 function evaluate($query, array $facts, array $rules)
 {
@@ -40,15 +37,14 @@ function evaluate($query, array $facts, array $rules)
 											//if an initial 'undetermined' is
 											//found. However, that may be
 											//erroneus
+			check_for_conflicts($rule, $rules);
 			$req = $rule->getRequirement();
 			$state = evaluate_requirement($req, $facts, $rules);
 
-			//HANDLE NEGATION FOR INFERENCE!!!
 			//negation?
-			//if negation ('!') is used in inference means that the fact must
+			//if negation ('!') in inference means that the fact must
 			//be changed to FALSE, then this is wrong. This SWITCHES from
 			//"TRUE" to "FALSE" or "FALSE" to "TRUE"
-			//if (query_is_negated($query, $inf) === TRUE)
 			if (fact_is_negated($query, $inf) === TRUE)
 			{
 				$istate = initial_state($query, $facts);
@@ -66,7 +62,6 @@ function evaluate($query, array $facts, array $rules)
 			}
 		}
 	}
-	//?
 	if (fact_is_negated($query, $rule->getRequirement()) === TRUE)
 	{
 		if ($state === "TRUE")
@@ -84,26 +79,19 @@ function evaluate($query, array $facts, array $rules)
 **	and the state returned. The initial states in 'array $facts' are
 **	initialised when the array is created.
 **	see: exsys_funcs.php->get_initial_facts()
-**
-**	The original version returned TRUE or FALSE as boolean values
 */
 function initial_state($query, array $facts)
 {
 	foreach ($facts as $fact)
 	{
-		//?
 		if (strpos($query, key($fact)) !== FALSE)
-		// if ((key($fact)) == $query)
 		{
 			if ($fact[key($fact)] == 1)
-				// return (TRUE);
 				return ("TRUE");
 			else
-				// return (FALSE);
 				return ("FALSE");
 		}
 	}
-	// return (FALSE);
 	return ("FALSE");
 }
 
@@ -113,15 +101,8 @@ function initial_state($query, array $facts)
 */
 function evaluate_requirement($req, array $facts, array $rules)
 {
-	//Holds the requirements facts and their initial value
-	// $rfacts = rfact_array($req, $facts);	//So far unused
-	//Holds the facts in the order they need to be evaluated. Facts in
-	//parentheses will be first in the array, starting with the first pair of
-	//parentheses ending with the last pair and then the fact/s without
-	//parentheses. [WILL NEED TO BE MATCHED AGAINST OPERATORS IN '$req']
 	$rarr = array();
-	$resarr = array();	//??
-	// $state = "FALSE";
+	$resarr = array();
 
 	if (strlen($req) == 1)
 	{
@@ -138,15 +119,13 @@ function evaluate_requirement($req, array $facts, array $rules)
 	else if (strpos($req, '(') !== FALSE)
 	{
 		$rarr = split_req($req);
-		//$state = evaluate_array($rarr, $facts, $rules);
 		$resarr = evaluate_array($rarr, $facts, $rules);
-		$state = evaluate_results_array($req, $resarr, $facts, $rules);	//also needs requiremnt?
+		$state = evaluate_results_array($req, $resarr, $facts, $rules);
 	}
 	else
 	{
 		$state = evaluate_compound($req, $facts, $rules);
 	}
-	//!!//CHECK FOR NEGATION!	<-	I know 'eval_AND()' did this!!	see: ./bkp/exsys_evaluate3.php
 	return ($state);
 }
 
@@ -155,28 +134,28 @@ function evaluate_requirement($req, array $facts, array $rules)
 **	an array with the fact being the key and the facts initial state (string)
 **	as the value.
 */
-function rfact_array($req, array $facts)
-{
-	$rfacts = array();
-	$rfact;
-
-	for ($cnt = 0; $cnt < strlen($req); $cnt++)
-	{
-		$char = substr($req, $cnt, 1);
-		if (ctype_upper($char) === TRUE)
-		{
-			$rfact = array($char => initial_state($char, $facts));
-			if (count($rfacts) === 0)
-				$rfacts[0] = $rfact;
-			else
-				array_push($rfacts, $rfact);
-		}
-	}
-	if (count($rfacts) === 0)
-		return (NULL);
-	else
-		return ($rfacts);
-}
+// function rfact_array($req, array $facts)
+// {
+// 	$rfacts = array();
+// 	$rfact;
+//
+// 	for ($cnt = 0; $cnt < strlen($req); $cnt++)
+// 	{
+// 		$char = substr($req, $cnt, 1);
+// 		if (ctype_upper($char) === TRUE)
+// 		{
+// 			$rfact = array($char => initial_state($char, $facts));
+// 			if (count($rfacts) === 0)
+// 				$rfacts[0] = $rfact;
+// 			else
+// 				array_push($rfacts, $rfact);
+// 		}
+// 	}
+// 	if (count($rfacts) === 0)
+// 		return (NULL);
+// 	else
+// 		return ($rfacts);
+// }
 
 /*
 **	Returns an arrray containing the facts in the requirement in the order they
@@ -206,9 +185,6 @@ function split_req($req)
 	$lpar;
 	$rpar;
 
-	// print("SPLIT_REQ" . PHP_EOL);
-	// print($req . PHP_EOL);
-
 	while (($lpar = strpos($nreq, '(')) !== FALSE)
 	{
 		if (($rpar = strpos($nreq, ')')) === FALSE)	//This maybe should be in an error check function
@@ -232,29 +208,21 @@ function split_req($req)
 	return ($rarr);
 }
 
-//PROBLEMS! 'evaluate_array()' SO FAR DOESN'T RETURN EVERYTHING. IT MUST EITHER
-//RETURN AN ARRAY CONTAINING EVALUATED FACTS, OR MUST DO EVALUATION IT'S SELF
-//AND RETURN THE STATE ('$state')
-
-//The actual evaluation of the array should go in here.
+/*
+**
+*/
 function evaluate_array(array $rarr, array $facts, array $rules)
 {
 	$results = array();
-	// $op;
 	$oppos;
 	$state;
 
-	// print("EVALUATE_ARRAY" . PHP_EOL);
-	// print_r($rarr);
-
 	foreach ($rarr as $r)
 	{
-		// $op = "NONE";
 		if ((($oppos = strpos($r, "+")) !== FALSE) ||
 			(($oppos = strpos($r, "|")) !== FALSE) ||
 			(($oppos = strpos($r, "^")) !== FALSE))
 		{
-			// $op = $r[$oppos];
 			$state = evaluate_compound($r, $facts, $rules);
 		}
 		else
@@ -267,6 +235,9 @@ function evaluate_array(array $rarr, array $facts, array $rules)
 	return ($results);
 }
 
+/*
+**
+*/
 function evaluate_results_array($req, array $resarr, array $facts, array $rules) //and $req?
 {
 	$pos;
@@ -292,6 +263,9 @@ function evaluate_results_array($req, array $resarr, array $facts, array $rules)
 	return ($state);
 }
 
+/*
+**
+*/
 function evaluate_boolstr_compound($str)
 {
 	$orpos = null;
@@ -301,9 +275,6 @@ function evaluate_boolstr_compound($str)
 	$rstate = "FALSE";
 	$state = "FALSE";
 	$opchars = array("|", "^", "+");
-
-	// print("EVALUATE_BOOLSTR_COMPOUND" . PHP_EOL);
-	// print($str . PHP_EOL);
 
 	if ((($orpos = strpos($str, "|")) !== FALSE) ||
 		(($orpos = strpos($str, "^")) !== FALSE) ||
@@ -337,7 +308,6 @@ function evaluate_compound($str, array $facts, array $rules)
 	$lstate;
 	$rstate;
 	$state = "FALSE";
-	// $negated = FALSE;
 
 	if ((($orpos = strpos($str, "|")) !== FALSE) ||
 		(($orpos = strpos($str, "^")) !== FALSE) ||
@@ -396,17 +366,17 @@ function eval_AND($lstate, $rstate)
 **
 **	Only for named keys
 */
-function get_rfacts_key(array $rfacts, $fact)
-{
-	$key = 0;
-
-	foreach ($rfacts as $rfact)
-	{
-		if (key($rfact) === $fact)
-			return ($key);
-		$key++;
-	}
-}
+// function get_rfacts_key(array $rfacts, $fact)
+// {
+// 	$key = 0;
+//
+// 	foreach ($rfacts as $rfact)
+// 	{
+// 		if (key($rfact) === $fact)
+// 			return ($key);
+// 		$key++;
+// 	}
+// }
 
 
 /*
@@ -415,18 +385,18 @@ function get_rfacts_key(array $rfacts, $fact)
 **
 **	RHS of 'Rule' (inference)	/	Query (?X)
 */
-function query_is_negated($query, $inference)
-{
-	for ($cnt = 0; $cnt < strlen($inference); $cnt++)
-	{
-		$char = substr($inference, $cnt, 1);
-		if ($char == $query)
-			if ($cnt > 0)
-				if ($inference[($cnt - 1)] == "!")
-					return (TRUE);
-	}
-	return (FALSE);
-}
+// function query_is_negated($query, $inference)
+// {
+// 	for ($cnt = 0; $cnt < strlen($inference); $cnt++)
+// 	{
+// 		$char = substr($inference, $cnt, 1);
+// 		if ($char == $query)
+// 			if ($cnt > 0)
+// 				if ($inference[($cnt - 1)] == "!")
+// 					return (TRUE);
+// 	}
+// 	return (FALSE);
+// }
 
 /*
 **	'$rfact'	-	rule fact
@@ -434,13 +404,13 @@ function query_is_negated($query, $inference)
 **	LHS of 'Rule' (requirement)
 */
 //?
-function rfact_is_negated($rfact, $req)
-{
-	for ($cnt = 0; $cnt < strlen($req); $cnt++)
-	{
-
-	}
-}
+// function rfact_is_negated($rfact, $req)
+// {
+// 	for ($cnt = 0; $cnt < strlen($req); $cnt++)
+// 	{
+//
+// 	}
+// }
 
 /*
 **	'$fstr'		-	either 'inference' or 'requirement', depending on the fact

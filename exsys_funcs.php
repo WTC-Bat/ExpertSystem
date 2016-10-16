@@ -394,12 +394,10 @@ function find_fact_in_str($fact, $str)
 	for ($cnt = 0; $cnt < $len; $cnt++)
 	{
 		$char = substr($str, $cnt, 1);
-		// if ($char == $fact)
 		if ($char === $fact)
 		{
 			if ($cnt > 0 && $cnt < ($len - 1))
 			{
-				// if (in_array()) $opchars ?
 				if ((ctype_upper($str[($cnt - 1)]) === FALSE) &&
 					(ctype_upper($str[$cnt + 1]) === FALSE))
 				{
@@ -413,11 +411,9 @@ function find_fact_in_str($fact, $str)
 			}
 			else if ($cnt === ($len - 1))
 			{
-				print("CNT AT END" . PHP_EOL);
 				if (ctype_upper($str[($cnt - 1)]) === FALSE)
 					return ($cnt);
 			}
-			//return ($cnt);
 		}
 	}
 	return (FALSE);
