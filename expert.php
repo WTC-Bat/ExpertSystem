@@ -28,10 +28,11 @@ if (($ifacts = get_initial_facts($infile)) == null)
 if (($facts = get_facts($infile, $ifacts)) == null)
 	exsys_error("ERROR: No facts found in file.");
 if (($rules = get_rules($infile)) == null)
-	print("WARNING: No rules specified in file!" . PHP_EOL);
+	exsys_error("ERROR: No rules specified in file!" . PHP_EOL);
+	//print("WARNING: No rules specified in file!" . PHP_EOL);
 
 // check_for_conflicts($rules);
-print(PHP_EOL . "Query Results:" . PHP_EOL);	//? interferes with conflict checking
+print(PHP_EOL . "Query Results:" . PHP_EOL);
 print("--------------" . PHP_EOL);
 foreach ($queries as $query)
 {
