@@ -1,7 +1,6 @@
 # ExpertSystem
 
 ### TODO:
-	- PROBLEM WITH ARRAY (PARENTHESES)! see ./tests/test_
 	- NEGATION
 		- Seems good. Needs more testing though
 	- CONFLICTS
@@ -13,18 +12,16 @@
 			- IF AND ONLY IF [<=>] means that nothing can
 				else can change the inferred fact but that
 				rule?
-	- "IF AND ONLY IF" (<=>)...?
-	- Check for any other possible "UNDETERMINED" states
 	- More tests. Parentheses, XOR, more negation tests,
 		more complex patterns
+	- If a fact occurs more than once as an inference, it seems only the last
+		rule containing that inference will return the final state
+		- Eg.
+			A => B
+			C => B
 
+			=A
 
-### OLDTODO
-	- NEGATION
-		- Negation for 'inference' (test)
-			- Somewhat done, but a compounded inference has a bit of
-				issues. See comment in ./tests/test_neg_inf (FIXED?)
-		- Negation for 'requirement' (test)
-			- Seems okay, needs more testing. Don't know if it will work with
-				compounded requirements and 'evaluate_array()' yet though (FIXED?)
-		- NEGATION FOR 'requirement'
+			?B
+
+			#B: FALSE
